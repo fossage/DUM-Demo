@@ -1,0 +1,54 @@
+{
+  "routes": {
+    "GET /artist": {
+      "controller": "Artist",
+      "action": "find"
+    },
+    "GET /artist/:id": {
+      "controller": "Artist",
+      "action": "findOne",
+      "policies": [
+        "isAuthorized"
+      ]
+    },
+    "POST /artist": {
+      "controller": "Artist",
+      "action": "create",
+      "policies": [
+        "isAuthorized",
+        "addDataCreate"
+      ]
+    },
+    "PUT /artist/:id": {
+      "controller": "Artist",
+      "action": "update",
+      "policies": [
+        "isAuthorized",
+        "addDataUpdate"
+      ]
+    },
+    "DELETE /artist/:id": {
+      "controller": "Artist",
+      "action": "destroy",
+      "policies": [
+        "isAuthorized"
+      ]
+    },
+    "POST /artist/:parentId/:relation": {
+      "controller": "Artist",
+      "action": "add",
+      "policies": [
+        "isAuthorized",
+        "addDataCreate"
+      ]
+    },
+    "DELETE /artist/:parentId/:relation/:id": {
+      "controller": "Artist",
+      "action": "remove",
+      "policies": [
+        "isAuthorized",
+        "addDataUpdate"
+      ]
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "identity": "artist",
+  "connection": "default",
+  "displayedAttribute": "",
+  "schema": true,
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "imageUrl": {
+      "type": "string"
+    },
+    "linkTo": {
+      "type": "string"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "trackUrl": {
+      "type": "string"
+    },
+    "createdBy": {
+      "model": "user"
+    },
+    "updatedBy": {
+      "model": "user"
+    },
+    "contributors": {
+      "collection": "user",
+      "via": "artists"
+    }
+  },
+  "autoCreatedAt": true,
+  "autoUpdatedAt": true,
+  "migrate": "alter"
+}
