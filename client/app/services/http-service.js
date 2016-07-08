@@ -46,7 +46,7 @@ function _request(type) {
     let path = _serverRoot + (endpoint || '');
     DUM.publish('loaderStart');
 
-    return fetch(`http://localhost:1337/api/${endpoint}`, initializer)
+    return fetch(`http://localhost:1337/${endpoint}`, initializer)
     .then((response) => {
       return response[initOpts.contentType || 'json']()
       .then((data) => {

@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "2e6c0e188c2b26b826f6"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "b059d7965f30fbafbb00"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -18481,7 +18481,7 @@
 	    var path = _serverRoot + (endpoint || '');
 	    _dum.DUM.publish('loaderStart');
 
-	    return fetch('http://localhost:1337/api/' + endpoint, initializer).then(function (response) {
+	    return fetch('http://localhost:1337/' + endpoint, initializer).then(function (response) {
 	      return response[initOpts.contentType || 'json']().then(function (data) {
 	        _dum.DUM.publish('loaderStop');
 	        return data;
