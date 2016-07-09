@@ -8,7 +8,7 @@ export let mainNav = DUM.Component((options) => {
   /*=========== ELEMENT SETUP ============*/
   let navList  = [];
   let group    = null;
-  let mainNav  = DUM.ul.setClass('flex-parent', 'justify-content', 'space-around', 'wrap');
+  let mainNav  = DUM.ul.setClass('flex-parent', 'justify-content', 'space-around', 'wrap', 'ai-center');
 
   options.items.forEach((item) => {
     let basicItem = DUM[item.type || 'li'].setClass(item.classes);
@@ -36,7 +36,12 @@ export let mainNav = DUM.Component((options) => {
   let navBar = DUM
   .$div(
     DUM.$nav(mainNav)
-  ).setClass('nav-wrapper');
+  ).setClass('nav-wrapper', 'clearfix');
+  
+  navBar.wait(50)
+  .then(() => {
+    navBar.setStyles({height: `${mainNav.clientHeight}px`}, true);
+  });
 
   return navBar;
 });

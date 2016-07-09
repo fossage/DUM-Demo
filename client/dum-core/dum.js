@@ -181,7 +181,8 @@ let decorateEl = (function() {
           let fragment = document.createDocumentFragment();
 
           [...args].forEach((childEl) => {
-            if(childEl && childEl.constructor === Array){
+            if(childEl && (childEl.constructor === Array || childEl.constructor === HTMLCollection )){
+              childEl = [].slice.call(childEl);
               childEl.forEach((elem) => {
                 if(!elem.$$mounted){
                   traverseNodes(elem, curry(callNodesEventCallbacks, 'willMount'));
@@ -211,7 +212,7 @@ let decorateEl = (function() {
           for(let i = argsArray.length - 1; i >= 0; i--) {
             let childEl = argsArray[i];
 
-            if(childEl && childEl.constructor === Array){
+            if(childEl && (childEl.constructor === Array || childEl.constructor === HTMLCollection)){
               if(!fragment) fragment = document.createDocumentFragment();
 
               childEl.forEach((elem) => {

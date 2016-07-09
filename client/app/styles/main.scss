@@ -2,6 +2,7 @@
   @import './global/colors';
   @import './global/flexbox';
   @import './global/fonts';
+  @import './global/utility';
   @import './global/main';
   @import './components/select';
   @import './components/list';
@@ -9,6 +10,7 @@
   @import './components/site-header';
   @import './sections/todo-list';
   @import './sections/artists';
+  @import './sections/news';
   
   /* label color */
    .input-field label {

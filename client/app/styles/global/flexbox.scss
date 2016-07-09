@@ -8,10 +8,16 @@
     &.space-around { justify-content: space-around;  }
     &.spcae-betwee { justify-content: space-between; }
   }
-
-  &.wrap    { flex-wrap: wrap;   }
-  &.no-wrap { flex-wrap: nowrap; }
-
+  // align-items
+  &.ai-flex-start { align-items: flex-start; }
+  &.ai-flex-end   { align-items: flex-end;   }
+  &.ai-center     { align-items: center;     }
+  &.ai-stretch    { align-items: stretch;    }
+  &.ai-baseline   { align-items: baseline;   }
+  // wrap
+  &.wrap          { flex-wrap: wrap;         }
+  &.no-wrap       { flex-wrap: nowrap;       }
+  // flex-items
   .flex-1  { flex: 1;  }
   .flex-2  { flex: 2;  }
   .flex-3  { flex: 3;  }

@@ -17,7 +17,7 @@ module.exports = {
   find: function * () {
     this.model = model;
     try {
-      let entries = yield strapi.hooks.blueprints.find(this);
+      let entries = yield Article.find({sort: 'createdAt DESC'});
       this.body = entries;
     } catch (err) {
       this.body = err;

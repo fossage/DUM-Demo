@@ -5,3 +5,12 @@ body {
 }
 
 a { color: darken($color: $link, $amount: 5); }
+
+// set heading sizes
+$heading-prefix: h;
+$starting-val: 2;
+
+@for $i from 1 through 6 {
+  #{$heading-prefix}#{$i} { font-size: #{$starting-val}em; }
+  $starting-val: $starting-val - 2;
+}

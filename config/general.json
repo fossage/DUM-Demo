@@ -3,7 +3,7 @@
   "views": false,
   "websockets": true,
   "favicon": {
-    "path": "favicon.ico",
+    "path": "logo.ico",
     "maxAge": 86400000
   },
   "prefix": "",

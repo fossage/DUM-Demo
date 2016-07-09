@@ -418,6 +418,10 @@ Object.defineProperties(DUM, {
   option: {
     get: () => DUM.createEl('option')
   },
+
+  fragment: {
+    get: () => DUM.decorateEl(document.createDocumentFragment())
+  },
   
   progress: {
     get: () => DUM.createEl('progress')
@@ -437,6 +441,14 @@ Object.defineProperties(DUM, {
 
   menu: {
     get: () => DUM.createEl('menu')
+  },
+
+  article: {
+    get: () => DUM.createEl('article')
+  },
+
+  section: {
+    get: () => DUM.createEl('section')
   },
   
   menuitem: {
@@ -536,6 +548,14 @@ Object.defineProperties(DUM, {
   $header: {
     value: (...appendList) => DUM.createEl('header').append([...appendList])
   },
+
+  $article: {
+    value: (...appendList) => DUM.createEl('article').append([...appendList])
+  },
+
+  $section: {
+    value: (...appendList) => DUM.createEl('section').append([...appendList])
+  },
   
   $hgroup: {
     value: (...appendList) => DUM.createEl('hgroup').append([...appendList])
@@ -567,6 +587,10 @@ Object.defineProperties(DUM, {
   
   $hr: {
     value: (...appendList) => DUM.createEl('hr').append([...appendList])
+  },
+
+  $fragment: {
+    vale: (...appendList) => DUM.decorateEl(document.createDocumentFragment()).append([...appendList])
   },
   
   $main: {

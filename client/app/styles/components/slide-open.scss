@@ -1,13 +1,12 @@
 .slide-container {
-  height: 0;
   overflow: hidden;
+  height: 0;
   transition: all 0.3s ease-in-out;
 
   &.slide-open {
-    height: 400px;
     overflow: auto;
+    height: 400px;
   }
-
   img { 
     width: 100%;
   }

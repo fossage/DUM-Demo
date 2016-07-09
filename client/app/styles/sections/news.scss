@@ -1,0 +1,31 @@
+.news-container {
+  margin: 0 auto;
+  padding: 0.5em 2em;
+  width: 80%;
+
+  .news-item-container {
+    margin: 2em 0;
+    padding: 1em;
+    border-radius: 2px;
+    color: #fff;
+
+    header {
+      margin: 1.2em 0;
+      padding: 0.5em 0;
+      border-bottom: 1px solid #666;
+    }
+    header h1 {
+      font-weight: 500; 
+      font-size: 3em; 
+      font-family: monospace; 
+    }
+    header p span { color: chocolate; }
+    section > p   { font-size: 1.4em; line-height: 1.5em; }
+    section img {
+      float: left; 
+      margin-right: 2em; 
+      max-width: 400px; 
+      max-height: 400px; 
+    }
+  }
+}

@@ -1,35 +1,32 @@
 .select-custom {
   ul { 
+    position: absolute; 
+    z-index: 10;
+    padding: 0; 
     max-height: 350px;
     width: 100%;
     background-color: #fff;
-    transition: all 0.1s ease-in-out; 
-    position: absolute; 
-    z-index: 10;
     cursor: pointer;
-    padding: 0;
+    transition: all 0.1s ease-in-out;
 
     &.col             { padding: 0;                              }
     li:hover          { background-color: darken($color: #fff, $amount: 5);                }
     li.selected       { background-color: darkorange; color: #fff; }
     li.selected:hover { background-color: darken($color: darkorange, $amount: 5); }
-    
     &.closed { 
-      height: 0; 
       overflow: hidden; 
+      height: 0; 
       box-shadow: 0;
     }
-
     &.open {
-      height: auto;
       overflow: auto;
+      height: auto;
       box-shadow: 2px 2px 5px;
     }
   }
-
   h4 { 
-    cursor: pointer; 
     margin-bottom: 0; 
-    margin-left: 20px;
+    margin-left: 20px; 
+    cursor: pointer;
   }
 }

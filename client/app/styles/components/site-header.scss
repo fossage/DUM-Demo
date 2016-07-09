@@ -2,33 +2,36 @@ header.main-header {
   padding: 0 2em;
 
   nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0 2em;
+    width: 100%;
     border-bottom: 1px solid #aaa;
+    background-color: rgba(50, 100, 150, 1);
 
-    .nav-item { 
-      text-align: center; 
+    .nav-item {
+      color: aliceblue; 
+      text-align: center;
+      text-transform: uppercase; 
       font-size: 1.7em;
-      margin: 0.5em 1.2em;
-      padding-top: 2em;
-      text-transform: uppercase;
-      color: aliceblue;
+      font-family: 'Neucha', cursive;
 
       &.current-state:not(.main-logo) { text-decoration: underline; }
-
-      span { 
+      span {
+        text-shadow: 2px 2px 3px black; 
         cursor: pointer; 
         transition: all 0.2s ease-out;
       }
-      
-      
       span:hover { color: darkorange; }
-      
       &.main-logo {
+        flex: 2;
+        height: 100px;
         background-image: url("../../../public/images/logos/scr_invert.png");
         background-position: top center;
-        background-repeat: no-repeat;
         background-size: contain;
-        height: 100px;
-        flex: 2;
+        background-repeat: no-repeat;
       }
     }
   }
