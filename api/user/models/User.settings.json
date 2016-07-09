@@ -49,6 +49,10 @@
     "artists": {
       "collection": "artist",
       "via": "contributors"
+    },
+    "articles": {
+      "collection": "article",
+      "via": "contributors"
     }
   },
   "autoCreatedAt": true,

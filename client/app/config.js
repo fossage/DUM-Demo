@@ -16,8 +16,8 @@ let header = () => {
   let nav = mainNav({
     items: [
       {
-        text: 'About',
-        goTo: 'about'
+        text: 'News',
+        goTo: 'news'
       },
       
       {

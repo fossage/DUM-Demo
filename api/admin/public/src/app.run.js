@@ -116,6 +116,12 @@
       template: '<textarea class="form-control" ng-model="model[options.key]" json-input></textarea>'
     });
 
+    formlyConfig.setType({
+      name: 'wysiwyg',
+      wrapper: 'bootstrapLabel',
+      template: '<text-angular ng-model="model[options.key]" html-input></text-angular>'
+    })
+
     var ngModelAttrs = {
       'dateDisabled': {'attribute': 'date-disabled'},
       'customClass': {'attribute': 'custom-class'},

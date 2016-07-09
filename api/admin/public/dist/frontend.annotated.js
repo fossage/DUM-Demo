@@ -4796,7 +4796,7 @@
         templateUrl: 'templates/angular-formly/input-checkbox.html',
         wrapper: ['bootstrapLabel'],
         overwriteOk: true
-      }
+      },
     ]);
 
     formlyConfig.setWrapper([

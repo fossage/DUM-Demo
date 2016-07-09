@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "b059d7965f30fbafbb00"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "353942fe3b484af8094f"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -570,7 +570,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "http://localhost:8080/built/";
+/******/ 	__webpack_require__.p = "http://localhost:8080/public/";
 
 /******/ 	// __webpack_hash__
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
@@ -16496,7 +16496,7 @@
 	function traverseNodes(node, cb) {
 	  if (cb) cb(node);
 
-	  if (node.childNodes.length) {
+	  if (node.childNodes && node.childNodes.length) {
 	    Object.keys(node.childNodes).forEach(function (key) {
 	      return traverseNodes(node.childNodes[key], cb);
 	    });
@@ -16565,6 +16565,7 @@
 	window.addEventListener('popstate', function (e) {
 	  var state = e.state || _dum.DUM.Router.$$config.root;
 	  _prevState = _currentState;
+	  _fireStateEvent('stateChangeStart', _routes[state.name]);
 
 	  // ensure we don't remove our root view
 	  if (_prevState.name !== 'root') _routes[_prevState.name].$$instanceView.remove();
@@ -16572,11 +16573,22 @@
 	  // if not root route, append the view associated with the route to root view
 	  if (state.name !== 'root') {
 	    var iView = _routes[state.name].view();
-	    _currentState = _routes[state.name];
-	    _currentState.$$instanceView = iView;
-	    _rootView.append(iView);
+
+	    Promise.resolve(iView).then(function (view) {
+	      _currentState = _routes[state.name];
+	      _currentState.$$instanceView = view;
+	      _rootView.append(view);
+	      _fireStateEvent('stateChangeEnd', _routes[state.name]);
+	    });
 	  } else {
-	    _currentState = _dum.DUM.Router.$$config.root;
+	    var root = _dum.DUM.Router.$$config.root;
+
+	    if (root.redirectTo) {
+	      _dum.DUM.Router.goTo(root.redirectTo, true);
+	      _currentState = _routes[root.redirectTo];
+	    } else {
+	      _currentState = _dum.DUM.Router.$$config.root;
+	    }
 	  }
 	});
 
@@ -16644,23 +16656,18 @@
 	  },
 
 	  goTo: {
-	    value: function value(routeName) {
+	    value: function value(routeName, isRedirect) {
 	      var state = _routes[routeName];
-	      if (state.path === _currentState.path) return _dum.DUM.Router;
+
+	      // We set the 'isRedirect' flag when we navigate to the root view with the 'redirectTo'
+	      // config option set to prevent us from navigating to an empty state where the user
+	      // is on the default view and trys to navigate back to root
+	      if (!isRedirect && state.path === _currentState.path) return _dum.DUM.Router;
 	      state.$$instanceView = state.view();
 
-	      if (state.$$instanceView.then) {
-	        state.$$instanceView.then(function (iView) {
-	          state.$$instanceView = iView;
-	          _handleChange();
-	        });
-	      } else {
-	        _handleChange();
-	      }
-
-	      function _handleChange() {
-	        var stateStart = (0, _element.createEvent)('stateChangeStart', _currentState);
-	        window.dispatchEvent(stateStart);
+	      Promise.resolve(state.$$instanceView).then(function (iView) {
+	        state.$$instanceView = iView;
+	        _fireStateEvent('stateChangeStart', _currentState);
 
 	        var parent = state.$$instanceView.parentNode || _rootView;
 	        var appendMethod = state.$$instanceView.parentNode ? 'append' : 'appendChild';
@@ -16671,14 +16678,18 @@
 	        history.pushState({ name: state.name, path: state.path }, state.name || '', state.path);
 	        _currentState = state;
 
-	        var stateEnd = (0, _element.createEvent)('stateChangeEnd', state);
-	        window.dispatchEvent(stateEnd);
-	      }
+	        _fireStateEvent('stateChangeEnd', state);
+	      });
 
 	      return _dum.DUM.Router;
 	    }
 	  }
 	});
+
+	function _fireStateEvent(eventType, data) {
+	  var event = (0, _element.createEvent)(eventType, data);
+	  window.dispatchEvent(event);
+	}
 
 /***/ },
 /* 307 */
@@ -18329,8 +18340,8 @@
 	var header = function header() {
 	  var nav = (0, _mainNavComponent.mainNav)({
 	    items: [{
-	      text: 'About',
-	      goTo: 'about'
+	      text: 'News',
+	      goTo: 'news'
 	    }, {
 	      text: 'Artists',
 	      goTo: 'artists'
@@ -18969,15 +18980,15 @@
 
 	var _artistsComponent = __webpack_require__(322);
 
-	var _todoListComponent = __webpack_require__(330);
+	var _newsComponent = __webpack_require__(330);
 
 	var _redditComponent = __webpack_require__(332);
 
 	/*======== ROUTES =======*/
 	_dum.DUM.Router.addRoutes([{
-	  name: 'about',
-	  path: '/about',
-	  view: _todoListComponent.todoList
+	  name: 'news',
+	  path: '/news',
+	  view: _newsComponent.news
 	}, {
 	  name: 'artists',
 	  path: '/artists',
@@ -19750,95 +19761,22 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.todoList = undefined;
+	exports.news = undefined;
 
 	var _dum = __webpack_require__(300);
 
-	var _list = __webpack_require__(331);
+	var _newsService = __webpack_require__(331);
 
-	var todoList = exports.todoList = _dum.DUM.Component(function () {
+	var _slideOpen = __webpack_require__(325);
+
+	var news = exports.news = _dum.DUM.Component(function () {
 	  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
+	  _newsService.News.get().then(function (news) {
+	    console.log(news);
+	  });
 
-	  // /*========= COMPONENT WRAPPER ========*/
-	  // let wrapper = DUM
-	  // .div
-	  // .setClass('card', 'todo-wrapper');
-
-	  // /*========= Input Element ========*/
-	  // let input = DUM
-	  // .input
-	  // .setClass('input-field')
-	  // .setType('text')
-	  // .keyDown((el, e) => { if(e.code === 'Enter') _updateList(); });
-
-	  // /*========= Add Item Button ========*/
-	  // let button = DUM
-	  // .a
-	  // .setClass('btn', 'btn-floating', 'cyan')
-	  // .click(() => _updateList())
-	  // .append(
-	  //   DUM
-	  //   .i
-	  //   .setClass('material-icons')
-	  //   .text('add')
-	  // );
-
-	  // /*========= Input Data LI ========*/
-	  // let inputItem = DUM
-	  // .li
-	  // .setClass('collection-item', 'todo-input')
-	  // .append(input, button);
-
-	  // /*========= List Header LI ========*/
-	  // let headerItem = DUM
-	  // .li
-	  // .setClass('collection-header')
-	  // .append(
-	  //   DUM
-	  //   .h4
-	  //   .text('Todo List')
-	  // );
-
-	  // /*========= LI TEMPLATE FUNCTION ========*/
-	  // let itemTemplate = (data) => {
-	  //   let i = DUM
-	  //   .li
-	  //   .text(data.val)
-	  //   .setClass('collection-item')
-	  //   .append(
-	  //     DUM
-	  //     .i
-	  //     .setClass('material-icons', 'right')
-	  //     .text('delete')
-	  //     .click(() => {i.remove()})
-	  //   );
-
-	  //   return i;
-	  // }
-
-	  // /*========= MAIN LIST CONSTRUCTOR ========*/
-	  // let list = List({
-	  //   listClasses: ['collection', 'with-header', 'highlight'],
-	  //   items: [{val: 'thing'}, {val: 'otherThing'}],
-	  //   itemTemplate: itemTemplate
-	  // })
-	  // .setClass('collection', 'with-header', 'highlight')
-	  // .prepend(headerItem, inputItem);
-
-	  // if(options.items) options.items.forEach((itm) => {
-	  //   list.append(itemTemplate({val: itm}));
-	  // });
-
-	  // /*========= HELPERS ========*/
-	  // function _updateList () {
-	  //   let val = input.val();
-	  //   if(!val) return false;
-	  //   input.val(null);
-	  //   list.append(itemTemplate({val: val}));
-	  // }
-
-	  return _dum.DUM.div;
+	  return _dum.DUM.$div(_dum.DUM.h1.text('testing'));
 	});
 
 /***/ },
@@ -19850,25 +19788,20 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.List = undefined;
+	exports.Article = undefined;
+
+	var _httpService = __webpack_require__(311);
 
 	var _dum = __webpack_require__(300);
 
-	var List = exports.List = _dum.DUM.Component(function (opts) {
+	var Article = exports.Article = _dum.DUM.Service('Article', {});
 
-	  var options = Object.assign({
-	    items: [],
-	    itemTemplate: null
-	  }, opts);
-
-	  var listContainer = _dum.DUM.ul;
-	  if (options.onContainerClick) listContainer.onClick(options.onContainerClick);
-
-	  options.items.forEach(function (item, idx) {
-	    listContainer.append(options.itemTemplate(item, idx, options.items.length));
-	  });
-
-	  return listContainer.setClass('list');
+	Object.defineProperties(Article, {
+	  get: {
+	    value: function value() {
+	      return _httpService.HTTP.get('article');
+	    }
+	  }
 	});
 
 /***/ },
@@ -19886,9 +19819,9 @@
 
 	var _genService = __webpack_require__(323);
 
-	var _list = __webpack_require__(331);
+	var _list = __webpack_require__(333);
 
-	var _redditService = __webpack_require__(333);
+	var _redditService = __webpack_require__(334);
 
 	var _select = __webpack_require__(326);
 
@@ -19896,9 +19829,9 @@
 
 	var _element = __webpack_require__(305);
 
-	var _string = __webpack_require__(337);
+	var _string = __webpack_require__(338);
 
-	var _grid = __webpack_require__(338);
+	var _grid = __webpack_require__(339);
 
 	var reddit = exports.reddit = _dum.DUM.Component(function () {
 	  var _marked = [_subThenList].map(regeneratorRuntime.mark);
@@ -20127,6 +20060,36 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.List = undefined;
+
+	var _dum = __webpack_require__(300);
+
+	var List = exports.List = _dum.DUM.Component(function (opts) {
+
+	  var options = Object.assign({
+	    items: [],
+	    itemTemplate: null
+	  }, opts);
+
+	  var listContainer = _dum.DUM.ul;
+	  if (options.onContainerClick) listContainer.onClick(options.onContainerClick);
+
+	  options.items.forEach(function (item, idx) {
+	    listContainer.append(options.itemTemplate(item, idx, options.items.length));
+	  });
+
+	  return listContainer.setClass('list');
+	});
+
+/***/ },
+/* 334 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.Reddit = undefined;
 
 	var _httpService = __webpack_require__(311);
@@ -20135,7 +20098,7 @@
 
 	var _dum = __webpack_require__(300);
 
-	var _stateManagerService = __webpack_require__(334);
+	var _stateManagerService = __webpack_require__(335);
 
 	var REDDITUSERAGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2728.0 Safari/537.36:dum.demo:v0.0.1 (by /u/fossage)';
 
@@ -20214,7 +20177,7 @@
 	});
 
 /***/ },
-/* 334 */
+/* 335 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20231,15 +20194,15 @@
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _resourceMapService = __webpack_require__(335);
+	var _resourceMapService = __webpack_require__(336);
 
 	var _httpService = __webpack_require__(311);
 
-	var _lruService = __webpack_require__(336);
+	var _lruService = __webpack_require__(337);
 
 	var _dum = __webpack_require__(300);
 
-	var _string = __webpack_require__(337);
+	var _string = __webpack_require__(338);
 
 	var _element = __webpack_require__(305);
 
@@ -20611,7 +20574,7 @@
 	}
 
 /***/ },
-/* 335 */
+/* 336 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -20630,7 +20593,7 @@
 	});
 
 /***/ },
-/* 336 */
+/* 337 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20826,7 +20789,7 @@
 	}
 
 /***/ },
-/* 337 */
+/* 338 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -20888,7 +20851,7 @@
 	}
 
 /***/ },
-/* 338 */
+/* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

@@ -10,6 +10,7 @@ header.main-header {
       margin: 0.5em 1.2em;
       padding-top: 2em;
       text-transform: uppercase;
+      color: aliceblue;
 
       &.current-state:not(.main-logo) { text-decoration: underline; }
 
@@ -22,7 +23,7 @@ header.main-header {
       span:hover { color: darkorange; }
       
       &.main-logo {
-        background-image: url("../../../public/images/logos/scr.png");
+        background-image: url("../../../public/images/logos/scr_invert.png");
         background-position: top center;
         background-repeat: no-repeat;
         background-size: contain;

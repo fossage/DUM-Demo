@@ -295,7 +295,7 @@ let decorateEl = (function() {
 
           try {
             traverseNodes(el, curry(callNodesEventCallbacks, 'willUnMount'));
-            let removedEl =  parent.removeChild(el);
+            let removedEl =  parent? parent.removeChild(el) : el;
             traverseNodes(el, curry(callNodesEventCallbacks, 'didUnMount'));
             el.$$mounted = false;
 
@@ -308,8 +308,7 @@ let decorateEl = (function() {
 
             return removedEl;
           } catch(e) {
-            console.error(e);
-            console.warn('Cant remove element because no parent was found');
+            console.warn(e);
             return el;
           }
         }

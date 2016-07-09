@@ -5,11 +5,11 @@ module.exports = {
     output: {
         path: './public',
         filename: "bundle.js",
-        publicPath: 'http://localhost:8080/built/'
+        publicPath: 'http://localhost:8080/public/'
     },
     devServer: {
       contentBase: './public',
-      publicPath: 'http://localhost:8080/built/'
+      publicPath: 'http://localhost:8080/public/'
     },
     module: {
       loaders: [

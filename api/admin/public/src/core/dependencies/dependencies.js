@@ -11,6 +11,7 @@
   angular.module('frontend.core.dependencies', [
     'angular-loading-bar',
     'angularMoment',
+    'textAngular',
     'as.sortable',
     'formly',
     'formlyBootstrap',

@@ -1,0 +1,54 @@
+{
+  "routes": {
+    "GET /article": {
+      "controller": "Article",
+      "action": "find"
+    },
+    "GET /article/:id": {
+      "controller": "Article",
+      "action": "findOne",
+      "policies": [
+        "isAuthorized"
+      ]
+    },
+    "POST /article": {
+      "controller": "Article",
+      "action": "create",
+      "policies": [
+        "isAuthorized",
+        "addDataCreate"
+      ]
+    },
+    "PUT /article/:id": {
+      "controller": "Article",
+      "action": "update",
+      "policies": [
+        "isAuthorized",
+        "addDataUpdate"
+      ]
+    },
+    "DELETE /article/:id": {
+      "controller": "Article",
+      "action": "destroy",
+      "policies": [
+        "isAuthorized"
+      ]
+    },
+    "POST /article/:parentId/:relation": {
+      "controller": "Article",
+      "action": "add",
+      "policies": [
+        "isAuthorized",
+        "addDataCreate"
+      ]
+    },
+    "DELETE /article/:parentId/:relation/:id": {
+      "controller": "Article",
+      "action": "remove",
+      "policies": [
+        "isAuthorized",
+        "addDataUpdate"
+      ]
+    }
+  }
+}

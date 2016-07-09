@@ -16,18 +16,31 @@ let _currentState = null;
 window.addEventListener('popstate', (e) => {
   let state = e.state || DUM.Router.$$config.root;
   _prevState = _currentState;
-  
+  _fireStateEvent('stateChangeStart', _routes[state.name]);
+
   // ensure we don't remove our root view
   if(_prevState.name !== 'root') _routes[_prevState.name].$$instanceView.remove();
   
   // if not root route, append the view associated with the route to root view
   if(state.name !== 'root') {
     let iView = _routes[state.name].view();
-    _currentState = _routes[state.name]
-    _currentState.$$instanceView = iView;
-    _rootView.append(iView);
+    
+    Promise.resolve(iView)
+    .then((view) => {
+      _currentState = _routes[state.name]
+      _currentState.$$instanceView = view;
+      _rootView.append(view);
+      _fireStateEvent('stateChangeEnd', _routes[state.name]);
+    });
   } else {
-     _currentState = DUM.Router.$$config.root;
+    let root = DUM.Router.$$config.root;
+
+     if(root.redirectTo) {
+       DUM.Router.goTo(root.redirectTo, true);
+       _currentState = _routes[root.redirectTo];
+     } else {
+       _currentState = DUM.Router.$$config.root;
+     }
   }
 });
 
@@ -91,24 +104,20 @@ Object.defineProperties(DUM.Router, {
   },
   
   goTo: {
-    value: (routeName) => {
+    value: (routeName, isRedirect) => {
       let state = _routes[routeName];
-      if(state.path === _currentState.path) return DUM.Router;
+      
+      // We set the 'isRedirect' flag when we navigate to the root view with the 'redirectTo' 
+      // config option set to prevent us from navigating to an empty state where the user
+      // is on the default view and trys to navigate back to root
+      if(!isRedirect && state.path === _currentState.path) return DUM.Router;
       state.$$instanceView = state.view();
-      
-      if(state.$$instanceView.then) {
-        state.$$instanceView.then((iView) => {
-          state.$$instanceView = iView;
-          _handleChange();
-        });
-      } else {
-        _handleChange();
-      }
-      
-      function _handleChange(){
-        let stateStart = createEvent('stateChangeStart', _currentState);
-        window.dispatchEvent(stateStart);
-        
+
+      Promise.resolve(state.$$instanceView)
+      .then((iView) => {
+        state.$$instanceView = iView;
+        _fireStateEvent('stateChangeStart', _currentState);
+
         let parent = state.$$instanceView.parentNode || _rootView;
         let appendMethod = state.$$instanceView.parentNode ? 'append' : 'appendChild';
 
@@ -118,11 +127,15 @@ Object.defineProperties(DUM.Router, {
         history.pushState({name: state.name, path: state.path}, state.name || '', state.path);
         _currentState = state;
 
-        let stateEnd = createEvent('stateChangeEnd', state);
-        window.dispatchEvent(stateEnd);
-      }
-      
+       _fireStateEvent('stateChangeEnd', state);
+      });
+
       return DUM.Router;
     }
   }
 });
+
+function _fireStateEvent(eventType, data) {
+  let event = createEvent(eventType, data)
+  window.dispatchEvent(event);
+}

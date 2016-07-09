@@ -152,7 +152,7 @@
           }
         },
         text: {
-          type: 'textarea',
+          type: 'wysiwyg',
           templateOptions: {
             type: 'text',
             waterlineOptions: {

@@ -1,16 +1,16 @@
 'use strict';
 import {DUM}      from '../dum-core/dum';
 import {artists}  from './components/artists-component';
-import {todoList} from './components/todo-list-component';
+import {news}     from './components/news-component';
 import {reddit}   from './components/reddit-component';
 
 /*======== ROUTES =======*/
 DUM.Router
 .addRoutes([
   {
-    name: 'about',
-    path: '/about',
-    view: todoList
+    name: 'news',
+    path: '/news',
+    view: news
   },
   
   {

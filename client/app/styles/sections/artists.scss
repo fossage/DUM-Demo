@@ -13,7 +13,7 @@
     transition: transform 0.4s, opacity 0.4s;
 
     figure {
-      box-shadow: 1px 1px 3px #888;
+      box-shadow: 2px 2px 5px #111;
       
       .image-container {
         height: 18vw;
@@ -91,7 +91,7 @@
       }
 
       figcaption { 
-        background-color: rgba(10,10,40,0.5);
+        background-color: rgba(10,10,10,0.5);
         text-align: center; 
         margin: 0 0 0.4em 0;
         font-size: 1.4em;
