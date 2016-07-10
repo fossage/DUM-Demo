@@ -38,8 +38,7 @@ export let mainNav = DUM.Component((options) => {
     DUM.$nav(mainNav)
   ).setClass('nav-wrapper', 'clearfix');
   
-  navBar.wait(50)
-  .then(() => {
+  navBar.on('didMount', () => {
     navBar.setStyles({height: `${mainNav.clientHeight}px`}, true);
   });
 

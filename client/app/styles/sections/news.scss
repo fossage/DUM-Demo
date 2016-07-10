@@ -20,12 +20,32 @@
       font-family: monospace; 
     }
     header p span { color: chocolate; }
-    section > p   { font-size: 1.4em; line-height: 1.5em; }
+    section > p   { font-size: 1.25em; line-height: 1.5em; }
     section img {
       float: left; 
       margin-right: 2em; 
       max-width: 400px; 
       max-height: 400px; 
+    }
+    section .tag-container {
+      margin-top: 0.8em;
+
+      .tag {
+        margin: 0 0.2em;
+        padding: 0.2em 1em;
+        border-radius: 6px;
+        background-color: #111;
+        font-size: 0.5em;
+        font-family: sans-serif;
+
+        svg {
+          position: relative;
+          top: 3px;
+          margin-right: 5px;
+          height: 15px;
+          fill: #fff;
+        }
+      }
     }
   }
 }

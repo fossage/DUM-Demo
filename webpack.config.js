@@ -3,7 +3,7 @@ var precss       = require('precss');
 var autoprefixer = require('autoprefixer');
 var postCssSort  = require('postcss-sorting');
 var svgo         = require('postcss-svgo');
-var inlineSvg    = require('postcss-inline-svg');
+var inlineSvg    = require('postcss-inline-svg')({});
 var fontMagician = require('postcss-font-magician')();
 
 module.exports = {
@@ -37,7 +37,7 @@ module.exports = {
       new webpack.IgnorePlugin(new RegExp("^(fs|ipc)$"))
     ],
     postcss: function () {
-        return [precss, autoprefixer, postCssSort, fontMagician, inlineSvg, svgo];
+        return [require('postcss-inline-svg'), precss, autoprefixer, postCssSort, fontMagician, svgo];
     },
     target: 'web'
 };
