@@ -8,10 +8,18 @@ export function traverseNodes(node, cb) {
   }
 }
 
-export function callNodesEventCallbacks(node, event) {
-  if(node.$$eventCallbacks && node.$$eventCallbacks[event]) {
+export function callNodesEventCallbacks(node, event, exception) {
+  if(node.$$eventCallbacks && node.$$eventCallbacks[event] && !exception) {
     node.$$eventCallbacks[event].forEach((cb) => cb());
   }
+}
+
+export function elementsToArray(item) {
+  if(item.constructor !== Array && item.constructor !== HTMLCollection) {
+    item = [item];
+  }
+
+  return [].slice.call(item);
 }
 
 export function createEvent(eventName, data, options = {}) {
@@ -20,6 +28,26 @@ export function createEvent(eventName, data, options = {}) {
     bubbles: options.bubbles || true, 
     cancelable: options.cancelable || false
   });
+}
+
+// check if we are appending to an already mounted piece of the document
+// and call lifecycle callbacks if applicable
+export function handlePotentialMount(el) {
+  let parent = el.parentNode;
+  while(parent) {
+    if(parent.$$mounted) {
+      traverseNodes(parent, (node) => {
+        if(!node.$$mounted) {
+          callNodesEventCallbacks(node, 'didMount');
+          node.$$mounted = true;
+        }
+      });
+      
+      break;
+    }
+    parent = parent.parentNode;
+  }
+  return el;
 }
 
 export const decodeEntities = (function() {

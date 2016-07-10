@@ -6,7 +6,14 @@ import {Component} from './factories/component';
 import {Service} from './factories/service';
 import {_behaviors, Behavior} from './factories/behavior';
 import {curry} from './utils/functional';
-import {traverseNodes, callNodesEventCallbacks, createEvent} from './utils/element'
+
+import {
+  traverseNodes, 
+  callNodesEventCallbacks, 
+  createEvent, 
+  handlePotentialMount,
+  elementsToArray
+} from './utils/element'
 
 /*=======================================
             METHOD DEFINITIONS
@@ -181,21 +188,18 @@ let decorateEl = (function() {
           let fragment = document.createDocumentFragment();
 
           [...args].forEach((childEl) => {
-            if(childEl && (childEl.constructor === Array || childEl.constructor === HTMLCollection )){
-              childEl = [].slice.call(childEl);
+            if(childEl){
+              childEl = elementsToArray(childEl);
+              
               childEl.forEach((elem) => {
                 if(!elem.$$mounted){
-                  traverseNodes(elem, curry(callNodesEventCallbacks, 'willMount'));
+                  traverseNodes(elem, (node) => callNodesEventCallbacks(node, 'willMount'));
                   fragment.appendChild(elem);
                 }
               });
 
               el.appendChild(fragment);
-              traverseNodes(fragment, curry(callNodesEventCallbacks, 'didMount'));
-            } else if(childEl){
-              if(!childEl.$$mounted) traverseNodes(childEl, curry(callNodesEventCallbacks, 'willMount'));
-              el.appendChild(childEl);
-              traverseNodes(childEl, curry(callNodesEventCallbacks, 'didMount'))
+              handlePotentialMount(el);
             }
           });
 
@@ -205,15 +209,14 @@ let decorateEl = (function() {
 
       prepend: {
         value: (...args) => {
-          let fragment = null;
-          let nodeToPrepend = null;
+          let fragment = document.createDocumentFragment();;
           let argsArray = [...args];
 
           for(let i = argsArray.length - 1; i >= 0; i--) {
             let childEl = argsArray[i];
 
-            if(childEl && (childEl.constructor === Array || childEl.constructor === HTMLCollection)){
-              if(!fragment) fragment = document.createDocumentFragment();
+            if(childEl) {
+              childEl = elementsToArray(childEl);
 
               childEl.forEach((elem) => {
                 if(!elem.$$mounted){
@@ -222,17 +225,10 @@ let decorateEl = (function() {
                 }
               });
               
-              nodeToPrepend = fragment;
-            } else if(childEl){
-              if(!childEl.$$mounted) traverseNodes(childEl, curry(callNodesEventCallbacks, 'willMount'));
-              nodeToPrepend = childEl;
+              el.insertBefore(fragment, el.childNodes[0]);
             }
 
-            try {
-              el.insertBefore(nodeToPrepend, el.childNodes[0]);
-            } catch(e) {
-              el.append(nodeToPrepend);
-            }
+            handlePotentialMount(el);
           }
 
           return el;
@@ -283,8 +279,7 @@ let decorateEl = (function() {
               }
             }
           } catch (e) {
-            console.error(e);
-            console.warn('Cant remove element because no parent was found');
+            console.warn(e);
             return el;
           }
         }
@@ -296,7 +291,7 @@ let decorateEl = (function() {
 
           try {
             traverseNodes(el, curry(callNodesEventCallbacks, 'willUnMount'));
-            let removedEl =  parent? parent.removeChild(el) : el;
+            let removedEl =  parent ? parent.removeChild(el) : el;
             traverseNodes(el, curry(callNodesEventCallbacks, 'didUnMount'));
             el.$$mounted = false;
 
@@ -351,11 +346,12 @@ let decorateEl = (function() {
         }
       },
 
-      // sets styles for the element in a stylesheet rather than on the component itself
-      // to allow for overwrites via a css file and/or other components
+      // Sets styles for the element in a stylesheet rather than on the component itself
+      // to allow for overwrites via a css file and/or other components. Inline styles
+      // can still be set by passing true for the 'inline' argument
       setStyles: {
-        value: (rules = {}, important) => {
-          if(important) {
+        value: (rules = {}, inline) => {
+          if(inline) {
             Object.keys(rules).forEach((key) => {
               let cssKey = key.split(/(?=[A-Z])/).join("-");
               el.attr('style', `${cssKey}:${rules[key]}`)
@@ -444,14 +440,6 @@ let decorateEl = (function() {
         }
       },
 
-      // @todo: Do we need this?
-      attachFunction: {
-        value: (cb) => {
-          cb.call(el, el);
-          return el;
-        }
-      },
-
       // makes the element become a shadow host for native web components
       shadow: {
         value: function(templateId) {
@@ -511,33 +499,54 @@ Object.defineProperties(DUM, {
     value: decorateEl
   },
 
-  getSvg: {
-    value: (path) => {
-      let init = { 
-        method: 'get',
-        headers: {'Content-Type': 'image/svg+xml'},
-        mode: 'cors',
-        cache: 'default' 
-      };
-
-      return fetch(path, init)
-      .then((response) => {
-        return response.text()
-        .then((svgString) => {
-          let tempEl       = DUM.div;
-          tempEl.innerHTML = svgString;
-          let svg          = tempEl.querySelector('svg');
-          return DUM.decorateEl(svg);
-        });
+  attach: {
+    // Main method to attatch DOM fragments to the actual DOM.
+    // Typically just used for the root component and everything else
+    // is appended to some subset of that.
+    value: (...args) => {
+      let fragment = DUM.decorateEl(document.createDocumentFragment());
+      
+      [...args].forEach((arg) => {
+        if(arg) {
+          arg = elementsToArray(arg);
+          arg.forEach((elem) => fragment.append(elem)); 
+        }
       });
+      
+      let element = document.body.appendChild(fragment);
+      
+      // here we call any 'didMount' lifecycle callbacks for each element being attached
+      [...args].forEach((arg) => {
+        if(arg) {
+          arg = elementsToArray(arg);
+          
+          arg.forEach((elem) => {
+            if(!elem.$$mounted){
+              
+              traverseNodes(elem, (node) => { 
+                callNodesEventCallbacks(node, 'didMount', node.$$mounted)
+              });
+              
+              elem.$$mounted = true;
+            }
+          });
+        }
+      });
+      
+      return element;
     }
+  },
+  
+  setGlobalStyles: {
+    value: (rules) => document.body.setStyles(rules)
+  },
+
+  getSvg: {
+    value: getSvg
   },
 
   publish: {
-    value: (eventName, data) => {
-      let e = createEvent(eventName, data);
-      document.dispatchEvent(e);
-    }
+    value: publish
   },
   
   Component: {
@@ -554,43 +563,13 @@ Object.defineProperties(DUM, {
 
   Observable: {
     get: () => {
-      let obj = {};
+      let obj        = {};
       let _watchHash = {};
-
-      let watch = function* (objct) {
-        let prevObj = objct;
-        let current;
-
-        while(true) {
-          current = yield;
-          let handler = yield;
-          
-          if(prevObj[current.key] && prevObj[current.key] !== current.val){
-            handler(current.val, prevObj[current.key]);
-          }
-
-          prevObj[current.key] = current.val;
-        }
-      }(obj);
-
+      let watch      = _watchGenerator(obj);
+      
       watch.next();
-
-      let prox =  new Proxy(obj, {
-        set: (target, prop, value, receiver) => {
-          if(_watchHash[prop]) {
-            watch.next({key: prop, val: value});
-            watch.next(_watchHash[prop]);
-          }
-          
-          target[prop] = value;
-
-          return true;
-        },
-      });
-
-      prox.observe = (prop, cb) => {
-        _watchHash[prop] = cb;
-      };
+      let prox  = _proxyObservable(obj, watch, _watchHash);
+      prox.observe = (prop, cb) => _watchHash[prop] = cb;
 
       return prox;
     }
@@ -598,41 +577,68 @@ Object.defineProperties(DUM, {
 
   observe: {
     value:(obj, watchHash) => {
-      let watch = function* (objct) {
-        let prevObj = objct;
-        let current;
-
-        while(true) {
-          if(!current) {
-            current = yield;
-          } else {
-            let handler = yield;
-            
-            if(prevObj[current.key] && prevObj[current.key] !== current.val){
-              handler(current.val, prevObj[current.key]);
-            }
-
-            prevObj[current.key] = current.val;
-          }
-        }
-      }(obj);
-
+      let watch = _watchGenerator(obj);
       watch.next();
-
-      let binder = new Proxy(obj, {
-        set: (target, prop, value, receiver) => {
-          if(watchHash[prop]) {
-            watch.next({key: prop, val: value});
-            watch.next(watchHash[prop]);
-          }
-
-          target[prop] = value;
-
-          return true;
-        }
-      })
-
+      let binder = _proxyObservable(obj, watch, _watchHash);
       return binder;
     }
   }
 });
+
+/*================== METHOD DEFINITIONS =================*/
+function publish(eventName, data) {
+  let e = createEvent(eventName, data);
+  document.dispatchEvent(e);
+}
+
+function getSvg(path) {
+  let init = { 
+    method: 'get',
+    headers: {'Content-Type': 'image/svg+xml'},
+    mode: 'cors',
+    cache: 'default' 
+  };
+
+  return fetch(path, init)
+  .then((response) => {
+    return response.text()
+    .then((svgString) => {
+      let tempEl       = DUM.div;
+      tempEl.innerHTML = svgString;
+      let svg          = tempEl.querySelector('svg');
+      return DUM.decorateEl(svg);
+    });
+  });
+}
+
+/*================== HELPERS =================*/
+function* _watchGenerator(objct) {
+  let prevObj = objct;
+  let current;
+
+  while(true) {
+    current     = yield;
+    let handler = yield;
+
+    if(prevObj[current.key] && prevObj[current.key] !== current.val){
+      handler(current.val, prevObj[current.key]);
+    }
+
+    prevObj[current.key] = current.val;
+  }
+}
+
+function _proxyObservable(obj, watch, _watchHash) {
+  return new Proxy(obj, {
+    set: (target, prop, value, receiver) => {
+      if(_watchHash[prop]) {
+        watch.next({key: prop, val: value});
+        watch.next(_watchHash[prop]);
+      }
+      
+      target[prop] = value;
+
+      return true;
+    },
+  });
+}

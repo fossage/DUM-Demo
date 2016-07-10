@@ -4,47 +4,9 @@ import {DUM} from './dum';
 import {curry} from './utils/functional';
 import {traverseNodes, callNodesEventCallbacks} from './utils/element'
 
-DUM.decorateEl(document.body);
+document.body = DUM.decorateEl(document.body);
 
 Object.defineProperties(DUM, {
-  attach: {
-    // main method to attatch DOM fragments to the actual DOM
-    value: (...args) => {
-      let fragment = DUM.decorateEl(document.createDocumentFragment());
-      
-      [...args].forEach((arg) => {
-        if(arg && arg.constructor === Array){
-          arg.forEach((elem) => { fragment.append(elem); });
-        } else {
-          fragment.append(arg);
-        }
-      });
-      
-      let element = document.body.appendChild(fragment);
-      
-      // here we call any 'didMount' lifecycle callbacks for each element being attached
-      [...args].forEach((arg) => {
-        if(arg){
-          if(arg.constructor === Array){
-            arg.forEach((elem) => {
-              var current = elem;
-              traverseNodes(elem, curry(callNodesEventCallbacks, 'didMount'));
-              elem.$$mounted = true;
-            });
-          } else {
-            traverseNodes(arg, curry(callNodesEventCallbacks, 'didMount'));
-            arg.$$mounted = true;
-          }
-        }
-      });
-      
-      return element;
-    }
-  },
-  
-  setGlobalStyles: {
-    value: (rules) => document.body.setStyles(rules)
-  },
 
   a: {
     get: () => {

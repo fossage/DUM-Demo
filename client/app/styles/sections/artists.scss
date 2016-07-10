@@ -106,6 +106,7 @@
   .artist-tile {
     &.mounted {
       opacity: 1;
+      transition: transform 0.4s, opacity 0.4s;
       transform: translateY(0) translateZ(0);
     }
     &.mounted:nth-child(2) {

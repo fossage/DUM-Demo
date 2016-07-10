@@ -151,20 +151,21 @@ export const artists = DUM.Component(() => {
 
       element.on('didMount', () => {
         element
-        .wait(1000)
+        .wait(500)
         .then(() => {
-          element.setClass('mounted');
-        });
+          element.setClass('mounted')
+        })
       });
 
-  
       return element;
     }
 
-    comp
-    .wait(800)
-    .then(() => {
-      comp.setClass('mounted');
+    comp.on('didMount', () => {
+      comp
+      .wait(500)
+      .then(() => {
+        comp.setClass('mounted')
+      });
     });
 
     return comp;
