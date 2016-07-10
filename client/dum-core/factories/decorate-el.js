@@ -219,7 +219,7 @@ export const DecorateEl = (function() {
         
         childEl.forEach((elem) => {
           if(!elem.$$mounted){
-            traverseNodes(elem, (node) => callNodesEventCallbacks(node, 'willMount'));
+            traverseNodes(elem, (node) => callNodesEventCallbacks(node, 'willMount', null, true));
             fragment.appendChild(elem);
           }
         });
@@ -270,7 +270,7 @@ export const DecorateEl = (function() {
 
         childEl.forEach((elem) => {
           if(!elem.$$mounted){
-            traverseNodes(elem, curry(callNodesEventCallbacks, 'willMount'));
+            traverseNodes(elem, (elem) => callNodesEventCallbacks(elem, 'willMount', null, true));
             fragment.appendChild(elem);
           }
         });
@@ -307,9 +307,9 @@ export const DecorateEl = (function() {
     try {
       for(let i = el.childNodes.length -1; i > -1; i--){
         let node = el.childNodes[i];
-        traverseNodes(node, callNodesEventCallbacks, 'willUnMount');
+        traverseNodes(node, (node) => callNodesEventCallbacks(node, 'willUnMount', null, true));
         let removedEl =  el.removeChild(node);
-        traverseNodes(node, curry(callNodesEventCallbacks, 'didUnMount'));
+        traverseNodes(node, (node) => callNodesEventCallbacks(node, 'didUnMount', null, true));
         node.$$mounted = false;
 
         if(node.$$eventCallbacks){
@@ -330,9 +330,9 @@ export const DecorateEl = (function() {
     let parent = el.parentNode;
 
     try {
-      traverseNodes(el, curry(callNodesEventCallbacks, 'willUnMount'));
+      traverseNodes(el, (node) => callNodesEventCallbacks(node, 'willUnMount', null, true));
       let removedEl =  parent ? parent.removeChild(el) : el;
-      traverseNodes(el, curry(callNodesEventCallbacks, 'didUnMount'));
+      traverseNodes(el, (node) => callNodesEventCallbacks(node, 'didUnMount', null, true));
       el.$$mounted = false;
 
       // Tear down listeners

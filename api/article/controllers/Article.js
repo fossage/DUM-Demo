@@ -24,6 +24,22 @@ module.exports = {
     }
   },
 
+  findTagged: function * () {
+    this.model = model;
+    
+    try {
+      let entries = yield Article.find({sort: 'createdAt DESC'});
+      
+      let filtered = entries.filter((article) => {
+        return article.tags.indexOf(this.request.query.tag) !== -1;
+      });
+
+      this.body = filtered;
+    } catch (err) {
+      this.body = err;
+    }
+  },
+
   /**
    * Get a specific article.
    *

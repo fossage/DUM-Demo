@@ -4,6 +4,10 @@
       "controller": "Article",
       "action": "find"
     },
+    "GET /tagged_article": {
+      "controller": "Article",
+      "action": "findTagged"
+    },
     "GET /article/:id": {
       "controller": "Article",
       "action": "findOne",

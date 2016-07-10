@@ -9,7 +9,9 @@ export const news = DUM.Component((options = {}) => {
     .then((newsItems) => {
       let container = DUM.div.setClass('news-container');
 
-      newsItems.forEach((item) => {
+      newsItems.forEach(itemTemplate);
+
+      function itemTemplate(item) {
         let content;
         let date = new Date(item.createdAt).toDateString();
         
@@ -36,8 +38,16 @@ export const news = DUM.Component((options = {}) => {
             let tagEl = DUM
             .span
             .append(DUM.span.text(tag))
-            .setClass('tag')
-            .prepend(svg.cloneNode(true));
+            .setClass('tag', 'link')
+            .prepend(svg.cloneNode(true))
+            .click(() => {
+              News.getTagged(tag)
+              .then((resp) => {
+                container.empty();
+                document.body.scrollTop = 0;
+                resp.forEach(itemTemplate)
+              })
+            });
 
             tagContainer.append(tagEl);
           });
@@ -60,7 +70,7 @@ export const news = DUM.Component((options = {}) => {
         ).setClass('news-item-container', 'clearfix');
 
         container.append(article);
-      });
+      }
       console.log(newsItems);
       return container;
     });

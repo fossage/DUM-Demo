@@ -8,9 +8,18 @@ export function traverseNodes(node, cb) {
   }
 }
 
-export function callNodesEventCallbacks(node, event, exception) {
+export function callNodesEventCallbacks(node, event, exception, async) {
   if(node.$$eventCallbacks && node.$$eventCallbacks[event] && !exception) {
-    node.$$eventCallbacks[event].forEach((cb) => cb());
+    node.$$eventCallbacks[event].forEach((cb) => {
+      if(async) {
+        let id = setTimeout(() => {
+          cb();
+          clearTimeout(id)
+        });
+      } else {
+        cb();
+      }
+    });
   }
 }
 
@@ -38,7 +47,7 @@ export function handlePotentialMount(el) {
     if(parent.$$mounted) {
       traverseNodes(parent, (node) => {
         if(!node.$$mounted) {
-          callNodesEventCallbacks(node, 'didMount');
+          callNodesEventCallbacks(node, 'didMount', null, true);
           node.$$mounted = true;
         }
       });

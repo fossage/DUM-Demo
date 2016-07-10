@@ -143,7 +143,7 @@ function attach(...args) {
         if(!elem.$$mounted){
           
           traverseNodes(elem, (node) => { 
-            callNodesEventCallbacks(node, 'didMount', node.$$mounted)
+            callNodesEventCallbacks(node, 'didMount', node.$$mounted, true)
           });
           
           elem.$$mounted = true;
