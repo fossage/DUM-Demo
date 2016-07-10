@@ -98,16 +98,13 @@ module.exports = {
     } else {
       next(new Error('Unknow API or no template detected'));
     }
-  }
+  },
 
   /**
    * Lifecycle callbacks on create
    */
 
-  // Before creating a value.
-  // beforeCreate: function (values, next) {
-  //   next();
-  // },
+  beforeCreate: _stripTags,
 
   // After creating a value.
   // afterCreate: function (newlyInsertedRecord, next) {
@@ -118,10 +115,7 @@ module.exports = {
    * Lifecycle callbacks on update
    */
 
-  // Before updating a value.
-  // beforeUpdate: function (valuesToUpdate, next) {
-  //   next();
-  // },
+  beforeUpdate: _stripTags,
 
   // After updating a value.
   // afterUpdate: function (updatedRecord, next) {
@@ -142,3 +136,13 @@ module.exports = {
   //   next();
   // }
 };
+
+function _stripTags(record, next) {
+  if(record.tags.length) {
+    record.tags.forEach((tag, idx) => {
+      record.tags[idx] = tag.trim().split(' ').join('').toLowerCase();
+    });
+  }
+
+  next();
+}
