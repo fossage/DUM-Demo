@@ -96,29 +96,29 @@ export const audioPlayer = DUM.Component((options) => {
   function VisualizerSample() {
     this.analyser   = audioCtx.createAnalyser();
 
-    let init = {
-      method: 'GET',
-      headers: {'Content-Type': 'arraybuffer'},
-      mode: 'cors'
-    };
+      let init = {
+        method: 'GET',
+        headers: {'Content-Type': 'arraybuffer'},
+        mode: 'cors'
+      };
 
-    fetch(opts.trackUrl, init)
-    .then((response) => {
-      response.arrayBuffer()
-      .then((data) => {
-        audioCtx.decodeAudioData(data, (buffer) => {
-          this.buffer = buffer;
-          this.analyser.connect(audioCtx.destination);
-          this.analyser.minDecibels = -140;
-          this.analyser.maxDecibels = 0;
-          this.freqs                = new Uint8Array(this.analyser.frequencyBinCount);
-          this.times                = new Uint8Array(this.analyser.frequencyBinCount);
-          this.isPlaying            = false;
-          this.startTime            = 0;
-          this.startOffset          = 0;
+      fetch(opts.trackUrl, init)
+      .then((response) => {
+        response.arrayBuffer()
+        .then((data) => {
+          audioCtx.decodeAudioData(data, (buffer) => {
+            this.buffer = buffer;
+            this.analyser.connect(audioCtx.destination);
+            this.analyser.minDecibels = -140;
+            this.analyser.maxDecibels = 0;
+            this.freqs                = new Uint8Array(this.analyser.frequencyBinCount);
+            this.times                = new Uint8Array(this.analyser.frequencyBinCount);
+            this.isPlaying            = false;
+            this.startTime            = 0;
+            this.startOffset          = 0;
+          });
         });
       });
-    });
   }
 
   function togglePlayback() {

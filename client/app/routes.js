@@ -3,6 +3,7 @@ import {DUM}      from '../dum-core/dum';
 import {artists}  from './components/artists-component';
 import {news}     from './components/news-component';
 import {reddit}   from './components/reddit-component';
+import {multiMixer}    from './components/multi-mixer';
 
 /*======== ROUTES =======*/
 DUM.Router
@@ -19,11 +20,11 @@ DUM.Router
     view: artists
   },
   
-  // {
-  //   name: 'shows',
-  //   path: '/shows',
-  //   view: null
-  // }, 
+  {
+    name: 'shows',
+    path: '/shows',
+    view: multiMixer
+  }, 
 
   // {
   //   name: 'videos',

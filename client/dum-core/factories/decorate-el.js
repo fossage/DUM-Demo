@@ -61,6 +61,10 @@ export const DecorateEl = (function() {
         value: _setUpHandler('mouseUp', el)
       },
 
+      mouseMove: {
+        value: _setUpHandler('mousemove', el)
+      },
+
       change : {
         value: _setUpHandler('change', el)
       },
@@ -96,6 +100,20 @@ export const DecorateEl = (function() {
       // sets up listeners for component specific events such as lifecycle callbacks
       on: {
         value: _bindElToFunc(el, on)
+      },
+
+      off: {
+        value: (name, func) => {
+          let cbArray = el.$$eventCallbacks[`on${name}`];
+          for(let i = 0; i < cbArray.length; i++) {
+            if(cbArray[i].name === `bound ${func.name}`) {
+              cbArray.splice(i, 1);
+              break;
+            }
+          }
+
+          if(!cbArray.length) el.removeEventListener(name, setHandlers);
+        }
       },
 
       behavior: {
@@ -482,13 +500,15 @@ export const DecorateEl = (function() {
       if(!el.$$eventCallbacks[domName]) el.$$eventCallbacks[domName] = [];
       el.$$eventCallbacks[domName] = el.$$eventCallbacks[domName].concat([(cb.bind(el, el))]);
 
-      el[domName] = (e) => {
-        el.$$eventCallbacks[domName].forEach((cb) => {
-          cb(e);
-        });
-      }
+      el[domName] = setHandlers.bind(null, el, domName);
 
       return el;
     };
+  }
+
+  function setHandlers(el, domName, e) {
+    el.$$eventCallbacks[domName].forEach((cb) => {
+      cb(e);
+    });
   }
 }());
