@@ -24,8 +24,6 @@ export const audioPlayer = DUM.Component((options) => {
   let FFT_SIZE    = 2048;
   let vol         = 0;
   let freqs       = 0;
-  let audioNode   = DUM.audio.setSrc(opts.trackUrl);
-  let audioSource = audioCtx.createMediaElementSource(audioNode);
   let canvas      = DUM.canvas;
   let svg;
 

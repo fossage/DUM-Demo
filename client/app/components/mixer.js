@@ -2,14 +2,12 @@ import {DUM} from '../../dum-core/dum';
 import {MixerNode} from '../component-templates/mixer-node';
 
 export const mixer = DUM.Component((options) => {
-  
+
+  let xPos      = 0;
+  let yPos      = 0;
+  let xElem     = 0;
+  let yElem     = 25;
   let mixerNode = new MixerNode(options.audioUrl);
-
-  let xPos = 0;
-  let yPos = 0;
-  let xElem = 0;
-  let yElem = 25;
-
   let container = DUM.div;
 
   let button = DUM
@@ -19,6 +17,7 @@ export const mixer = DUM.Component((options) => {
     let downTime = new Date().getTime();
     el.text('Stop');
     el.mouseMove(moveEl);
+    el.mouseOut(() => el.off('mousemove', moveEl));
 
     el.mouseUp(() => {
       let upTime = new Date().getTime();
@@ -31,7 +30,7 @@ export const mixer = DUM.Component((options) => {
     });
 
     
-  }).setStyles({padding: '3em'})
+  }).setStyles({padding: '5em', backgroundColor: options.color || 'purple'})
   
   container.append(
     button
@@ -65,6 +64,5 @@ export const mixer = DUM.Component((options) => {
     container.style.left = `${xPos - xElem}px`
   }
 
-  return container;
-  
+  return container;  
 });

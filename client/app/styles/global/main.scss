@@ -2,6 +2,7 @@
 
 body {
   background-image: url("../../../public/images/ephemera/ignasi_pattern_s_dark.png"); 
+  background-attachment: fixed;
 }
 
 a { color: darken($color: $link, $amount: 5); }
