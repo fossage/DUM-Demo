@@ -45,7 +45,7 @@ export class MixerNode {
             }
             if(!startTime) startTime = performance.now();
             currentTime = performance.now();
-            if(((currentTime - startTime) / 1000) > this.buffer.duration) {
+            if(((currentTime - startTime) / 1000) >= this.buffer.duration) {
               startTime += (this.buffer.duration * 1000);
             }
           };

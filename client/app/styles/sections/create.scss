@@ -1,0 +1,12 @@
+.audio-node-container {
+  button {
+    border-radius: 200px;
+    padding: 2em;
+    font-size: 1.3em;
+    color: white;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

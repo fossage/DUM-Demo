@@ -37,8 +37,8 @@ let header = () => {
       },
       
       {
-        text: 'Shows',
-        goTo: 'shows'
+        text: 'Create',
+        goTo: 'create'
       }
     ]
   });

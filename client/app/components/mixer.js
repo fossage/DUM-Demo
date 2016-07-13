@@ -1,5 +1,6 @@
 import {DUM} from '../../dum-core/dum';
 import {MixerNode} from '../component-templates/mixer-node';
+let zIndex = 0;
 
 export const mixer = DUM.Component((options) => {
 
@@ -8,22 +9,23 @@ export const mixer = DUM.Component((options) => {
   let xElem     = 0;
   let yElem     = 25;
   let mixerNode = new MixerNode(options.audioUrl);
-  let container = DUM.div;
+  let container = DUM.div.setClass('audio-node-container');
 
   let button = DUM
   .button
   .text('Play')
   .mouseDown((el) => {
+    container.style['z-index'] = ++zIndex;
     let downTime = new Date().getTime();
-    el.text('Stop');
     el.mouseMove(moveEl);
     el.mouseOut(() => el.off('mousemove', moveEl));
 
     el.mouseUp(() => {
       let upTime = new Date().getTime();
+      
       if(upTime - downTime < 200) {
         mixerNode.togglePlayback(0);
-        el.text('Stop');
+        el.text(el.innerText === 'Stop' ? 'Play' : 'Stop');
       }
 
       el.off('mousemove', moveEl);

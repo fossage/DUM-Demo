@@ -21,8 +21,8 @@ DUM.Router
   },
   
   {
-    name: 'shows',
-    path: '/shows',
+    name: 'create',
+    path: '/create',
     view: multiMixer
   }, 
 
