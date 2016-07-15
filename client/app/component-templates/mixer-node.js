@@ -1,13 +1,13 @@
 'use strict';
 import {DUM} from '../../dum-core/dum';
 
-let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let currentTime = 0;
 let startTime = 0;
 let controlNodeId;
 
 export class MixerNode {
-  constructor(audioUrl, { bufferInterceptor }) {
+  constructor(audioUrl, bufferInterceptor) {
     this.isPlaying     = false;
     this.gain        = 0;
     this.panPosition = 0;
