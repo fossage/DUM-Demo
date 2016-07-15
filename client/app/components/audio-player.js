@@ -49,7 +49,8 @@ export const audioPlayer = DUM.Component((options) => {
     let visualizer     = new VisualizerSample();
 
     svgNode.on('didMount', ()=> { bbox = o.getBBox(); });
-    
+    svgNode.subscribe('stateChangeStart', () => togglePlayback.call(visualizer, true));
+
     svg.click(() => {
       _togglePlayState(icon, playButtonPath);
       visualizer.togglePlayback();
@@ -119,8 +120,8 @@ export const audioPlayer = DUM.Component((options) => {
       });
   }
 
-  function togglePlayback() {
-    if (this.isPlaying) {
+  function togglePlayback(stop) {
+    if (this.isPlaying || stop) {
       // Stop playback
       this.source[this.source.stop ? 'stop': 'noteOff'](0);
       this.startOffset += audioCtx.currentTime - this.startTime;

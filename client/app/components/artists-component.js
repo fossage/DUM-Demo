@@ -16,7 +16,7 @@ export const artists = DUM.Component(() => {
       items: items
     }).setClass('flex-parent', 'wrap', 'justify-content', 'center');;
 
-      function _itemTemplate(item) {
+    function _itemTemplate(item) {
       // ELEMENT SETUP
       let element        = DUM.div;
       let bioContainer   = DUM.$div(DUM.p.text(item.bio));

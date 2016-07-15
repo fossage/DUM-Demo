@@ -1,9 +1,22 @@
 .audio-node-container {
   button {
-    border-radius: 200px;
     padding: 2em;
-    font-size: 1.3em;
+    border-radius: 200px;
     color: white;
+    font-size: 1.5em;
+    -webkit-user-select: none;  
+    -moz-user-select: none;     
+    -ms-user-select: none; 
+    user-select: none;
+    cursor: -webkit-grab;
+    box-shadow: 2px 2px 5px #000;
+    transition: all 0.05s ease;
+
+    &.grabbing { 
+      cursor: -webkit-grabbing; 
+      box-shadow: 3px 3px 8px #222;
+      font-size: 1.54em;
+    }
 
     &:focus {
       outline: none;

@@ -1,6 +1,6 @@
 import {DUM} from '../../dum-core/dum';
 import {MixerNode} from '../component-templates/mixer-node';
-let zIndex = 0;
+let zIndex = 101;
 
 export const mixer = DUM.Component((options) => {
 
@@ -16,12 +16,14 @@ export const mixer = DUM.Component((options) => {
   .text('Play')
   .mouseDown((el) => {
     container.style['z-index'] = ++zIndex;
+    el.setClass('grabbing');
     let downTime = new Date().getTime();
     el.mouseMove(moveEl);
     el.mouseOut(() => el.off('mousemove', moveEl));
 
     el.mouseUp(() => {
       let upTime = new Date().getTime();
+      el.removeClass('grabbing');
       
       if(upTime - downTime < 200) {
         mixerNode.togglePlayback(0);
@@ -33,6 +35,8 @@ export const mixer = DUM.Component((options) => {
 
     
   }).setStyles({padding: '5em', backgroundColor: options.color || 'purple'})
+
+  button.subscribe('stateChangeStart', () => mixerNode.stop());
   
   container.append(
     button
