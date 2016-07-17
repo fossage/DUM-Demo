@@ -1,44 +1,62 @@
 'use strict';
 import {DUM} from '../../dum-core/dum';
 const THREE = require('three');
+require('three/examples/js/controls/FlyControls');
 
 // if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+const quadrants = ['pcBuffer', 'pcIndexed', 'pcIndexedOffset', 'pcRegular']; 
+let startTime;
 
 export class RaycasterPlane{
   constructor () {
-    this.threshold    = 0.1;
-    this.pointSize    = 0.05;
-    this.width        = 500;
-    this.length       = 100;
+    this.threshold    = 0.5;
+    this.pointSize    = 0.005;
+    this.width        = 100;
+    this.length       = 500;
     this.mouse        = new THREE.Vector2();
     this.intersection = null;
-    this.spheres      = [];
-    this.spheresIndex = 0;
-    this.rotateY      = new THREE.Matrix4().makeRotationY( 0.0005 );
+    this.rotateY      = new THREE.Matrix4().makeRotationY( 0.001 );
+    this.rotateX      = new THREE.Matrix4().makeRotationX( -0.0005 );
+    this.rotateZ      = new THREE.Matrix4().makeRotationZ( 0.0008 );
     this.node         = DUM.div.setClass('three-dee');
     this.toggle       = 0;
     this.scene        = new THREE.Scene();
     this.clock        = new THREE.Clock();
-    this.camera       = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-    this.camera.applyMatrix( new THREE.Matrix4().makeTranslation( 0,0,20 ) );
+    
+    this.renderer = new THREE.WebGLRenderer();
+    this.renderer.setPixelRatio( window.devicePixelRatio );
+    this.renderer.setSize( window.innerWidth, window.innerHeight - 100 );
+    this.node.append( DUM.decorateEl(this.renderer.domElement) );
+
+    this.raycaster = new THREE.Raycaster();
+    this.raycaster.params.Points.threshold = this.threshold;
+    
+    this.camera = new THREE.PerspectiveCamera( 6, window.innerWidth / window.innerHeight, 1, 10000 );
+    this.camera.applyMatrix( new THREE.Matrix4().makeTranslation( 0,0,200 ) );
     this.camera.applyMatrix( new THREE.Matrix4().makeRotationX( -0.5 ) );
+    
+    this.controls               = new THREE.FlyControls(this.camera, this.renderer.domElement);
+    this.controls.movementSpeed = .004;
+	  this.controls.rollSpeed     = 0.00005;
+    this.controls.dragToLook    = true;
+    this.controls.useMouse      = false;
 
     this.pcBuffer = this.generatePointcloud( new THREE.Color( 1,0,0 ), this.width, this.length );
     this.pcBuffer.scale.set( 10,0,10 );
     this.pcBuffer.position.set( -5,0,5 );
-    this.pcBuffer.scale.y = 10; // THIS IS WHAT WE UPDATE TO MAKE ANALYZER
+    this.pcBuffer.scale.y = 0; // THIS IS WHAT WE UPDATE TO MAKE ANALYZER
     this.scene.add( this.pcBuffer );
     
     this.pcIndexed = this.generateIndexedPointcloud( new THREE.Color( 0,1,0 ), this.width, this.length );
     this.pcIndexed.scale.set( 10,0,10 );
     this.pcIndexed.position.set( 5,0,5 );
-    this.pcIndexed.scale.y = 20;
+    this.pcIndexed.scale.y = 0;
     this.scene.add( this.pcIndexed );
     
     this.pcIndexedOffset = this.generateIndexedWithOffsetPointcloud( new THREE.Color( 0,1,1 ), this.width, this.length );
     this.pcIndexedOffset.scale.set( 10,0,10 );
     this.pcIndexedOffset.position.set( 5,0,-5 );
-    this.pcIndexedOffset.scale.y = 15;
+    this.pcIndexedOffset.scale.y = 0;
     this.scene.add( this.pcIndexedOffset );
     
     this.pcRegular = this.generateRegularPointcloud( new THREE.Color( 1,0,1 ), this.width, this.length );
@@ -47,24 +65,10 @@ export class RaycasterPlane{
     this.scene.add( this.pcRegular );
     this.pointclouds = [ this.pcBuffer, this.pcIndexed, this.pcIndexedOffset, this.pcRegular ];
 
-    let sphereGeometry = new THREE.SphereGeometry( 0.1, 102, 102 );
-    let sphereMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, shading: THREE.FlatShading } );
     
-    for ( let i = 0; i < 10; i++ ) {
-      let sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
-      this.scene.add( sphere );
-      this.spheres.push( sphere );
-    }
 
-    this.renderer = new THREE.WebGLRenderer();
-    this.renderer.setPixelRatio( window.devicePixelRatio );
-    this.renderer.setSize( window.innerWidth, window.innerHeight );
-    this.node.append( DUM.decorateEl(this.renderer.domElement) );
-
-    this.raycaster = new THREE.Raycaster();
-    this.raycaster.params.Points.threshold = this.threshold;
-
-    window.addEventListener( 'resize', this.onWindowResize, false );
+    window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
+    document.addEventListener( 'mousemove', this.onDocumentMouseMove.bind(this), false )
   }
 
   generatePointCloudGeometry( color, width, length ){
@@ -185,7 +189,7 @@ export class RaycasterPlane{
   onDocumentMouseMove( event ) {
     event.preventDefault();
     this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    this.mouse.y = - ( event.clientY / window.innerHeight ) * 1.6 + 1;
   }
 
   onWindowResize() {
@@ -195,31 +199,28 @@ export class RaycasterPlane{
   }
 
   animate() {
-    requestAnimationFrame( this.animate.bind(this) );
-    this.render();
+    let c = DUM.Router.current;
+    
+    if(c.name === 'create' || c.to.name === 'create') {
+      requestAnimationFrame( this.animate.bind(this) );
+      this.render();
+    } 
+  }
+
+  updateYScale(val, quadrant) {
+    this[quadrants[quadrant]].scale.y = val;
   }
 
   render() {
     this.camera.applyMatrix( this.rotateY );
     this.camera.updateMatrixWorld();
     this.raycaster.setFromCamera( this.mouse, this.camera );
+    
     let intersections = this.raycaster.intersectObjects( this.pointclouds );
     this.intersection = ( intersections.length ) > 0 ? intersections[ 0 ] : null;
-    
-    if ( this.toggle > 0.02 && this.intersection !== null) {
-      this.spheres[ this.spheresIndex ].position.copy( this.intersection.point );
-      this.spheres[ this.spheresIndex ].scale.set( 1, 1, 1 );
-      this.spheresIndex = ( this.spheresIndex + 1 ) % this.spheres.length;
-      this.toggle = 0;
-    }
-    
-    for ( let i = 0; i < this.spheres.length; i++ ) {
-      let sphere = this.spheres[ i ];
-      sphere.scale.multiplyScalar( 0.98 );
-      sphere.scale.clampScalar( 0.01, 1 );
-    }
-    
+
     this.toggle += this.clock.getDelta();
+    this.controls.update( this.toggle );
     this.renderer.render( this.scene, this.camera );
   }
 }

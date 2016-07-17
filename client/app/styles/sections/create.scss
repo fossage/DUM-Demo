@@ -1,25 +1,78 @@
 .audio-node-container {
-  button {
-    padding: 2em;
-    border-radius: 200px;
-    color: white;
-    font-size: 1.5em;
-    -webkit-user-select: none;  
-    -moz-user-select: none;     
-    -ms-user-select: none; 
-    user-select: none;
+  opacity: 0.8;
+  svg{
     cursor: -webkit-grab;
-    box-shadow: 2px 2px 5px #000;
     transition: all 0.05s ease;
+    border-radius: 200px;
+    width: 125px;
+    height: 125px;
+    background-color: #000;
+
+    #outer-circle {
+      background-image: radial-gradient(50% 100%, #716E6E 100%, #3E3B3B 50%);
+      box-shadow: 2px 2px 13px 3px rgba(255,255,255,0.50);
+      fill: #333;
+    }
+    
+    #middle-circle {
+      background: #9BC1C5;
+      box-shadow: 1px 1px 12px 3px rgba(0,0,0,0.48);
+      transition: all 0.2s ease-in-out;
+    }
+
+    #center-circle {
+      background-image: radial-gradient(50% 100%, #8A8A8A 57%, #D8D8D8 100%);
+      border: 1px solid #000000;
+      fill: rgba(0,0,0,0.8);
+    }
 
     &.grabbing { 
       cursor: -webkit-grabbing; 
-      box-shadow: 3px 3px 8px #222;
-      font-size: 1.54em;
     }
 
     &:focus {
       outline: none;
     }
+
+    &.blue {
+      #middle-circle { fill: rgba(0, 255, 255, 0.2); }
+    }
+
+    &.purple {
+      #middle-circle { fill: rgba(139, 0, 139, 0.2); }
+    }
+
+    &.green {
+      #middle-circle { fill: rgba(0, 173, 0, 0.2); }
+    }
+
+    &.red {
+      #middle-circle { fill: rgba(167, 0, 0, 0.2); }
+    }
+
+    &.playing.blue {
+      box-shadow: 2px 2px 20px rgb(0, 255, 255);
+      #middle-circle { fill: rgba(0, 255, 255, 1); }
+    }
+
+    &.playing.purple {
+      box-shadow: 2px 2px 20px rgb(139, 0, 139);
+      #middle-circle { fill: rgba(139, 0, 139, 1); }
+    }
+
+    &.playing.green {
+      box-shadow: 2px 2px 20px rgb(0, 173, 0);
+      #middle-circle { fill: rgba(0, 173, 0, 1); }
+    }
+
+    &.playing.red {
+      box-shadow: 2px 2px 20px rgb(167, 0, 0);
+      #middle-circle { fill: rgba(167, 0, 0, 1); }
+    }
   }
 }
+
+// rgba(0, 255, 255, 0.2); blue
+// rgba(139, 0, 139, 0.2); purple
+// rgba(0, 173, 0, 0.2); green
+// rgba(167, 0, 0, 0.2); red

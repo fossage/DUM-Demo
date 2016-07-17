@@ -5,20 +5,41 @@ import {mixer} from './mixer';
 import {RaycasterPlane} from '../component-templates/RaycasterPlane';
 
 export const multiMixer = DUM.Component((options) => {
-  let node1 = mixer({audioUrl: 'audio/stems/low_drums.mp3', color: 'lawngreen'})
-  .setStyles(_getStyles());
-  
-  let node2 = mixer({audioUrl: 'audio/stems/high.mp3', color: 'red'})
-  .setStyles(_getStyles());
-  
-  let node3 = mixer({audioUrl: 'audio/stems/high_drums.mp3', color: 'aqua'})
-  .setStyles(_getStyles());
-  
-  let node4 = mixer({audioUrl: 'audio/stems/bass.mp3', color: 'purple'})
-  .setStyles(_getStyles());
-  
   let rcp = new RaycasterPlane();
   rcp.animate();
+  
+  let promises = [
+    mixer({
+      audioUrl: 'audio/stems/low_drums.mp3', 
+      colorClass: 'red', 
+      bufferInterceptor: (val) => rcp.updateYScale(val, 0)
+    }),
+    
+    mixer({
+      audioUrl: 'audio/stems/high.mp3', 
+      colorClass: 'green',
+      bufferInterceptor: (val) => rcp.updateYScale(val, 1)
+    }),
+    
+    mixer({
+      audioUrl: 'audio/stems/high_drums.mp3', 
+      colorClass: 'blue',
+      bufferInterceptor: (val) => rcp.updateYScale(val, 2)
+    }),
+    
+    mixer({
+      audioUrl: 'audio/stems/bass.mp3', 
+      colorClass: 'purple',
+      bufferInterceptor: (val) => rcp.updateYScale(val, 3)
+    })
+  ];
+
+  return Promise.all(promises)
+  .then((vals) => {
+    
+    let [node1, node2, node3, node4] = vals;
+    return DUM.$div(node1, node2, node3, node4, rcp.node);
+  })
 
   function _getStyles() {
     return {
@@ -27,5 +48,5 @@ export const multiMixer = DUM.Component((options) => {
     }
   }
 
-  return DUM.$div(node1, node2, node3, node4, rcp.node);
+ 
 });

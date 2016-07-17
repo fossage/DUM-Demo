@@ -7,7 +7,7 @@ let startTime = 0;
 let controlNodeId;
 
 export class MixerNode {
-  constructor(audioUrl, bufferInterceptor) {
+  constructor(audioUrl, bufferInterceptor, startingGain) {
     this.isPlaying     = false;
     this.gain        = 0;
     this.panPosition = 0;
@@ -29,20 +29,27 @@ export class MixerNode {
           this.scriptNode = audioCtx.createScriptProcessor();
           this.buffer     = buffer;
           this.isPlaying  = false;
-          this.gainNode.gain.value = 0.5;
+          this.gainNode.gain.value = startingGain || 0.5;
           
           this.scriptNode.onaudioprocess = (e) => {
             let inputBuffer  = e.inputBuffer;
             let outputBuffer = e.outputBuffer;
             
-            for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
-              var inputData  = inputBuffer.getChannelData(channel);
-              var outputData = outputBuffer.getChannelData(channel);
+            for (let channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
+              let inputData  = inputBuffer.getChannelData(channel);
+              let outputData = outputBuffer.getChannelData(channel);
+              let total      = 0;
+              let len        = inputData.length;
 
-              for (var sample = 0; sample < inputBuffer.length; sample++) {
+              for (let sample = 0; sample < inputBuffer.length; sample++) {
                 // make output equal to the same as the input
                 outputData[sample] = inputData[sample];
-                if(bufferInterceptor) bufferInterceptor(sample);
+                
+                if(bufferInterceptor) { 
+                  total += Math.abs( inputData[sample] )
+                  let rms = Math.sqrt( total / len ) * 50; 
+                  bufferInterceptor(rms);
+                }
               }
             }
             
@@ -76,6 +83,7 @@ export class MixerNode {
       _play(this);
     }
     this.isPlaying = !this.isPlaying;
+    return this.isPlaying;
   }
 
   adjustGain(val) {
@@ -92,9 +100,9 @@ function _play(that) {
   that.source.buffer = that.buffer;
   that.source.loop   = true;
 
-  that.source.connect(that.scriptNode);
-  that.scriptNode.connect(that.panNode);
+  that.source.connect(that.panNode);
   that.panNode.connect(that.gainNode);
-  that.gainNode.connect(audioCtx.destination);
+  that.gainNode.connect(that.scriptNode);
+  that.scriptNode.connect(audioCtx.destination);
   that.source[that.source.start ? 'start' : 'noteOn'](0, (currentTime - startTime) / 1000);
 }

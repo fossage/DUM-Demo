@@ -106,23 +106,25 @@ Object.defineProperties(DUM.Router, {
   goTo: {
     value: (routeName, isRedirect) => {
       let state = _routes[routeName];
-      
+
       // We set the 'isRedirect' flag when we navigate to the root view with the 'redirectTo' 
       // config option set to prevent us from navigating to an empty state where the user
       // is on the default view and trys to navigate back to root
       if(!isRedirect && state.path === _currentState.path) return DUM.Router;
+      _currentState.to = _routes[routeName];
+      _fireStateEvent('stateChangeStart', _currentState);
       state.$$instanceView = state.view();
 
       Promise.resolve(state.$$instanceView)
       .then((iView) => {
         state.$$instanceView = iView;
-        _fireStateEvent('stateChangeStart', _currentState);
 
         let parent = state.$$instanceView.parentNode || _rootView;
         let appendMethod = state.$$instanceView.parentNode ? 'append' : 'appendChild';
 
         if(_currentState.$$instanceView && _currentState.$$instanceView.remove) _currentState.$$instanceView.remove();
         if(state.$$instanceView) parent[appendMethod](state.$$instanceView);
+        _currentState.to = null;
 
         history.pushState({name: state.name, path: state.path}, state.name || '', state.path);
         _currentState = state;
