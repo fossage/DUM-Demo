@@ -1,0 +1,54 @@
+.effects {
+  position: absolute;
+  
+  svg {
+    position: absolute;
+    width: 144px;
+    height: 350px;
+
+    .base{
+      background: #3B3B3B;
+      box-shadow: 0px 2px 4px 0px rgba(171,171,171,0.50);
+    }
+    .outer{
+      border: 3px solid #4C4C4C;
+      background: #191919;
+      box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
+    }
+    .center{
+      background-image: radial-gradient(50% 100%, #FFFFFF 20%, #959292 57%, #D8D8D8 100%);
+    }
+    .indicator{
+      background-image: radial-gradient(50% 100%, #000000 52%, #B2B2B2 100%);
+    }
+    .blue {
+      border: 1px solid #312D2D;
+      border-radius: 2px;
+      background: rgba(0,255,255,0.20);
+      box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.50);
+    }
+    .purple {
+      border: 1px solid #312D2D;
+      border-radius: 2px;
+      background: rgba(139,0,139,0.20);
+      box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.50);
+    }
+    .green {
+      border: 1px solid #312D2D;
+      border-radius: 2px;
+      background: rgba(0,173,0,0.20);
+      box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.50);
+    }
+    .red {
+      border: 1px solid #312D2D;
+      border-radius: 2px;
+      background: rgba(167,0,0,0.20);
+      box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.50);
+    }
+    .reverb, .delay{
+      color: #E5E5E5;
+      font-size: 19px;
+      font-family: OCRAStd;
+    }
+  }
+}

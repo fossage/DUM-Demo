@@ -5,7 +5,7 @@ let left = 0;
 
 export const mixer = DUM.Component((options) => {
 
-  return DUM.getSvg('images/ephemera/audio-button.svg')
+  return DUM.getSVG('images/ephemera/audio-button.svg')
   .then((svgNode) => {
     let svg = Snap(svgNode);
     let xPos;
@@ -57,8 +57,8 @@ export const mixer = DUM.Component((options) => {
       mixerNode.adjustPan(panVal);
       mixerNode.adjustGain(gainVal);
       
-      xPos = e.clientX - el.clientWidth / 2;
-      yPos = e.clientY - el.clientHeight / 2;
+      xPos = Math.round(e.clientX - el.clientWidth / 2);
+      yPos = Math.round(e.clientY - el.clientHeight / 2);
       container.style.top = `${yPos}px`;
       container.style.left = `${xPos}px`
     }

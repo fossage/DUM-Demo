@@ -8,7 +8,8 @@ const quadrants = ['pcBuffer', 'pcIndexed', 'pcIndexedOffset', 'pcRegular'];
 let startTime;
 
 export class RaycasterPlane{
-  constructor () {
+  constructor (cancelWhen = null) {
+    this.cancelWhen   - cancelWhen;
     this.threshold    = 0.5;
     this.pointSize    = 0.005;
     this.width        = 100;
@@ -30,6 +31,7 @@ export class RaycasterPlane{
 
     this.raycaster = new THREE.Raycaster();
     this.raycaster.params.Points.threshold = this.threshold;
+ 
     
     this.camera = new THREE.PerspectiveCamera( 6, window.innerWidth / window.innerHeight, 1, 10000 );
     this.camera.applyMatrix( new THREE.Matrix4().makeTranslation( 0,0,200 ) );
@@ -66,6 +68,8 @@ export class RaycasterPlane{
     this.pointclouds = [ this.pcBuffer, this.pcIndexed, this.pcIndexedOffset, this.pcRegular ];
 
     
+    this.starField = this.generateStarField();
+    this.scene.add(this.starField);
 
     window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
     document.addEventListener( 'mousemove', this.onDocumentMouseMove.bind(this), false )
@@ -110,6 +114,33 @@ export class RaycasterPlane{
     let material   = new THREE.PointsMaterial( { size: this.pointSize, vertexColors: THREE.VertexColors } );
     let pointcloud = new THREE.Points( geometry, material );
     return pointcloud;
+  }
+
+  generateStarField() {
+    let geometry  = new THREE.BufferGeometry();
+    let positions = new Float32Array( 900 );
+    let colors    = new Float32Array( 900 );
+    
+    for(let i=0; i<900; i++) {
+      let x = Math.floor(window.innerWidth * Math.random());
+      let y = Math.floor(window.innerHeight * Math.random());
+      let z = Math.floor(20 * Math.random());
+
+      positions[i] = x;
+      positions[i + 1] = y;
+      positions[i + 2] = z;
+
+      colors[i] = 200;
+      colors[i + 1] = 200;
+      colors[i + 2] = 200;
+    }
+
+    geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+    geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
+    geometry.computeBoundingBox();
+    let material = new THREE.PointsMaterial({size: 20, vertexColors: THREE.VertexColors, sizeAttenuation: false});
+    let starField = new THREE.Points(geometry, material);
+    return starField;
   }
 
   generateIndexedPointcloud( color, width, length ) {
@@ -199,12 +230,9 @@ export class RaycasterPlane{
   }
 
   animate() {
-    let c = DUM.Router.current;
-    
-    if(c.name === 'create' || c.to.name === 'create') {
-      requestAnimationFrame( this.animate.bind(this) );
-      this.render();
-    } 
+    let cancelId = requestAnimationFrame( this.animate.bind(this) );
+    this.render();
+    if(this.cancelWhen && this.cancelWhen()) cancelAnimationFrame(cancelId);
   }
 
   updateYScale(val, quadrant) {

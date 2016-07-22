@@ -41,3 +41,4 @@ module.exports = {
     },
     target: 'web'
 };
+

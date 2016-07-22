@@ -52,6 +52,7 @@
     "strapi-generate-upload": "~1.5.0",
     "strapi-generate-users": "~1.5.0",
     "style-loader": "^0.13.1",
+    "svg-url-loader": "^1.0.3",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.0",
     "webpack-dev-server": "^1.9.0",

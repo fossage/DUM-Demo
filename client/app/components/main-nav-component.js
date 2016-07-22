@@ -1,7 +1,6 @@
 import {DUM}       from '../../dum-core/dum';
 import {HTTP}      from '../services/http-service';
 import {NavButton} from '../component-templates/nav-button';
-import {Loader}    from '../component-templates/loader';
 
 export let mainNav = DUM.Component((options) => {
   

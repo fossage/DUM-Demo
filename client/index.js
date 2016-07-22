@@ -1,4 +1,4 @@
-import Snap from 'imports-loader?this=>window,fix=>module.exports=0!snapsvg/dist/snap.svg.js';
+import Snap from 'imports-loader?this=>window,fix=>module.exports=0!snapsvg/dist/snap_svg.js';
 require('babel-polyfill');
 require('./dum-core/dum');
 require('./dum-core/router');

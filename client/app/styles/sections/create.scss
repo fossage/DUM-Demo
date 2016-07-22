@@ -72,6 +72,73 @@
   }
 }
 
+.instructions-container {
+  position: absolute;
+  color: white;
+  font-family: monospace;
+  bottom: 0;
+
+  span {
+    padding: 2em;
+    &::after {
+      margin-left: 10px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: gold;
+      font-size: 1.2em;
+    }
+
+    &.forward::after {
+      content: "W"
+    }
+
+    &.back::after {
+      content: "S"
+    }
+
+    &.left::after {
+      content: "A"
+    }
+
+    &.right::after {
+      content: "D"
+    }
+
+    &.up::after {
+      content: "R"
+    }
+
+    &.down::after {
+      content: "F"
+    }
+
+    &.roll-left::after {
+      content: "Q"
+    }
+
+    &.roll-right::after {
+      content: "E"
+    }
+
+    &.yaw-left::after {
+      content: "←";
+      height: 30px;
+      width: 30px;
+    }
+
+    &.yaw-right::after {
+      content: "→"
+    }
+
+    &.pitch-up::after {
+      content: "↑"
+    }
+
+    &.pitch-down::after {
+      content: "↓"
+    }
+  }
+}
+
 // rgba(0, 255, 255, 0.2); blue
 // rgba(139, 0, 139, 0.2); purple
 // rgba(0, 173, 0, 0.2); green

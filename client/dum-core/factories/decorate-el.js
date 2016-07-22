@@ -209,20 +209,16 @@ export const DecorateEl = (function() {
     } 
 
     if(!el.$$eventCallbacks.onmouseover) el.$$eventCallbacks.onmouseover = [];
-    if(!el.$$eventCallbacks.onmouseout) el.$$eventCallbacks.onmouseout = [];
+    if(!el.$$eventCallbacks.onmouseout)  el.$$eventCallbacks.onmouseout  = [];
     el.$$eventCallbacks.onmouseover.push(enterCb.bind(el, el));
     el.$$eventCallbacks.onmouseout.push(leaveCb.bind(el, el));
 
     el.onmouseover = () => {
-      el.$$eventCallbacks.onmouseover.forEach((cb) => {
-        cb();
-      });
+      el.$$eventCallbacks.onmouseover.forEach((cb) => cb());
     }
 
     el.onmouseout = () => {
-      el.$$eventCallbacks.onmouseout.forEach((cb) => {
-        cb();
-      });
+      el.$$eventCallbacks.onmouseout.forEach((cb) => cb());
     }
 
     return el;
@@ -233,8 +229,10 @@ export const DecorateEl = (function() {
 
     [...args].forEach((childEl) => {
       if(childEl){
-        childEl = elementsToArray(childEl);
-        
+        if(childEl.constructor !== Array){
+          childEl = elementsToArray(childEl);
+        } 
+
         childEl.forEach((elem) => {
           if(!elem.$$mounted){
             traverseNodes(elem, (node) => callNodesEventCallbacks(node, 'willMount', null, true));
@@ -244,6 +242,7 @@ export const DecorateEl = (function() {
 
         el.appendChild(fragment);
         handlePotentialMount(el);
+        
       }
     });
 
@@ -253,7 +252,7 @@ export const DecorateEl = (function() {
   function on(el, eventName, cb) {
     let cbs;
     if(cb.constructor === Array) {
-      cb.forEach((cb) => { cb.bind(el, el); });
+      cb.forEach((cb) => cb.bind(el, el));
       cbs = cb 
     } else if(typeof cb === 'function') {
       cb.bind(el, el);

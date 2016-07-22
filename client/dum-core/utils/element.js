@@ -1,5 +1,7 @@
 'use strict';
 
+import {DUM} from '../dum';
+
 export function traverseNodes(node, cb) {
   if(cb) cb(node);
 
@@ -57,6 +59,13 @@ export function handlePotentialMount(el) {
     parent = parent.parentNode;
   }
   return el;
+}
+
+export function convertStringToEl(str, selector) {
+  let tempEl       = DUM.div;
+  tempEl.innerHTML = str;
+  let el = selector ? tempEl.querySelector(selector) : tempEl.firstChild;
+  return DUM.decorateEl(el);
 }
 
 export const decodeEntities = (function() {

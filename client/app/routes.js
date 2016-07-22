@@ -2,7 +2,6 @@
 import {DUM}      from '../dum-core/dum';
 import {artists}  from './components/artists-component';
 import {news}     from './components/news-component';
-import {reddit}   from './components/reddit-component';
 import {multiMixer}    from './components/multi-mixer';
 
 /*======== ROUTES =======*/

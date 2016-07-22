@@ -3,7 +3,7 @@ import {News}      from '../services/news-service';
 import {SlideOpen} from '../component-templates/slide-open';
 
 export const news = DUM.Component((options = {}) => {
-  return DUM.getSvg('fonts/Entypo+/tag-no-string.svg')
+  return DUM.getSVG('fonts/Entypo+/tag-no-string.svg')
   .then((svg) => {
     return News.get()
     .then((newsItems) => {
@@ -62,16 +62,16 @@ export const news = DUM.Component((options = {}) => {
             .p
             .text('Posted on: ')
             .append(DUM.span.text(date))
-            ),
+          ),
 
-            DUM.$section(
-              content
-            ).setClass('news-content')
+          DUM.$section(
+            content
+          ).setClass('news-content')
         ).setClass('news-item-container', 'clearfix');
 
         container.append(article);
       }
-      console.log(newsItems);
+
       return container;
     });
   })

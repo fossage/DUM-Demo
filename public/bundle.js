@@ -16177,7 +16177,7 @@
 	    value: decorateEl
 	  },
 
-	  getSvg: {
+	  getSVG: {
 	    value: function value(path) {
 	      var init = {
 	        method: 'get',
@@ -19596,7 +19596,7 @@
 	  VisualizerSample.prototype.draw = draw;
 	  VisualizerSample.prototype.getFrequencyValue = getFrequencyValue;
 
-	  return _dum.DUM.getSvg(opts.svgPath).then(function (svgNode) {
+	  return _dum.DUM.getSVG(opts.svgPath).then(function (svgNode) {
 	    // SVG REFERENCE SETUP
 	    svg = Snap(svgNode);
 	    var o = svg.select('#o');

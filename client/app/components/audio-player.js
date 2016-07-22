@@ -19,7 +19,7 @@ export const audioPlayer = DUM.Component((options) => {
   let visualizer = new AudioVisualizer({trackUrl: opts.trackUrl})
   let canvas     = visualizer.canvas;
 
-  return DUM.getSvg(opts.svgPath)
+  return DUM.getSVG(opts.svgPath)
   .then((svgNode) => {
     // SVG REFERENCE SETUP
     svg                = Snap(svgNode);
@@ -35,7 +35,7 @@ export const audioPlayer = DUM.Component((options) => {
     let indicator5     = playButton.select('#indicator-5');
 
     svgNode.on('didMount', ()=> { bbox = o.getBBox(); });
-    svgNode.subscribe('stateChangeStart', () => togglePlayback.call(visualizer, true));
+    svgNode.subscribe('stateChangeStart', () => visualizer.togglePlayback.call(visualizer, true));
 
     svg.click(() => {
       _togglePlayState(icon, playButtonPath);
