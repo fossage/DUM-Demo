@@ -1,10 +1,11 @@
 .effects {
   position: absolute;
-  
+  display: none;
   svg {
     position: absolute;
     width: 144px;
     height: 350px;
+    left: 0;
 
     .base{
       background: #3B3B3B;

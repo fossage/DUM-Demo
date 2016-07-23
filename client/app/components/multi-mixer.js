@@ -37,9 +37,7 @@ export const multiMixer = DUM.Component((options) => {
     }),
 
     DUM.getSVG('images/ephemera/effects.svg')
-    .then((svg) => {
-      return DUM.$div(svg).setClass('effects');
-    })
+    .then(_handleSVGLoad)
   ];
    
   let instructionItems = [
@@ -77,11 +75,12 @@ export const multiMixer = DUM.Component((options) => {
     return DUM.$div(node1, node2, node3, node4, rcp.node, instructions, effects);
   });
 
-  function _getStyles() {
-    return {
-      opacity: '0.7',
-      zIndex: '2'
-    }
+  function _handleSVGLoad(svgNode) {
+    let svg = Snap(svgNode);
+    let reverb = svg.select('#reverb');
+    let delay = svg.select('#delay');
+
+    return DUM.$div(svg.node).setClass('effects');
   }
 
  

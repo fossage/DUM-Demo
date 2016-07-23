@@ -69,6 +69,8 @@ export class RaycasterPlane{
 
     
     this.starField = this.generateStarField();
+    this.starField.scale.set( 20,20,-200 );
+    this.starField.position.set( 0, 0 ,0 );
     this.scene.add(this.starField);
 
     window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
@@ -118,27 +120,34 @@ export class RaycasterPlane{
 
   generateStarField() {
     let geometry  = new THREE.BufferGeometry();
-    let positions = new Float32Array( 900 );
-    let colors    = new Float32Array( 900 );
+    let positions = new Float32Array( 15000 );
+    let colors    = new Float32Array( 15000 );
     
-    for(let i=0; i<900; i++) {
-      let x = Math.floor(window.innerWidth * Math.random());
-      let y = Math.floor(window.innerHeight * Math.random());
-      let z = Math.floor(20 * Math.random());
+    for(let i=0; i<15000; i += 3) {
+      let phi = Math.random() * (0 - 2 * Math.PI);
+      let costheta = Math.random() * (-1 - 1) + 1
+      let u = Math.random() * (0 - 1)
+
+      let theta = Math.acos( costheta )
+      let r = 200 * Math.cbrt( u )
+      
+      let x = r * (Math.sin( theta) * Math.cos( phi )) / 100
+      let y = r * (Math.sin( theta) * Math.sin( phi )) / 100
+      let z = r * (Math.cos( theta )) / 100
 
       positions[i] = x;
       positions[i + 1] = y;
       positions[i + 2] = z;
 
-      colors[i] = 200;
-      colors[i + 1] = 200;
-      colors[i + 2] = 200;
+      colors[i] = 1;
+      colors[i + 1] = 1;
+      colors[i + 2] = 1;
     }
 
     geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
     geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
     geometry.computeBoundingBox();
-    let material = new THREE.PointsMaterial({size: 20, vertexColors: THREE.VertexColors, sizeAttenuation: false});
+    let material  = new THREE.PointsMaterial({size: 0.1, vertexColors: THREE.VertexColors});
     let starField = new THREE.Points(geometry, material);
     return starField;
   }
