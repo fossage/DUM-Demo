@@ -1,143 +1,168 @@
-.audio-node-container {
-  opacity: 0.8;
-  svg{
-    cursor: -webkit-grab;
-    transition: all 0.05s ease;
-    border-radius: 200px;
-    width: 125px;
-    height: 125px;
-    background-color: #000;
+.-view-create{
+  overflow: hidden;
+}
 
-    #outer-circle {
-      background-image: radial-gradient(50% 100%, #716E6E 100%, #3E3B3B 50%);
-      box-shadow: 2px 2px 13px 3px rgba(255,255,255,0.50);
-      fill: #333;
-    }
-    
-    #middle-circle {
-      background: #9BC1C5;
-      box-shadow: 1px 1px 12px 3px rgba(0,0,0,0.48);
-      transition: all 0.2s ease-in-out;
-    }
+.create-container {
+  position: relative;
 
-    #center-circle {
-      background-image: radial-gradient(50% 100%, #8A8A8A 57%, #D8D8D8 100%);
-      border: 1px solid #000000;
-      fill: rgba(0,0,0,0.8);
-    }
+  .audio-node-container {
+    opacity: 0.8;
 
-    &.grabbing { 
-      cursor: -webkit-grabbing; 
-    }
+    svg{
+      width: 125px;
+      height: 125px;
+      border-radius: 200px;
+      background-color: #000;
+      cursor: -webkit-grab;
+      transition: all 0.05s ease;
 
-    &:focus {
-      outline: none;
-    }
+      #outer-circle {
+        background-image: radial-gradient(50% 100%, #716E6E 100%, #3E3B3B 50%);
+        box-shadow: 2px 2px 13px 3px rgba(255,255,255,0.50);
+        fill: #333;
+      }
+      #middle-circle {
+        background: #9BC1C5;
+        box-shadow: 1px 1px 12px 3px rgba(0,0,0,0.48);
+        transition: all 0.2s ease-in-out;
+      }
+      #center-circle {
+        border: 1px solid #000000;
+        background-image: radial-gradient(50% 100%, #8A8A8A 57%, #D8D8D8 100%);
+        fill: rgba(0,0,0,0.8);
+      }
+      &.grabbing { 
+        cursor: -webkit-grabbing; 
+      }
+      &:focus {
+        outline: none;
+      }
+      &.blue {
+        #middle-circle { fill: rgba(0, 255, 255, 0.2); }
+      }
+      &.purple {
+        #middle-circle { fill: rgba(139, 0, 139, 0.2); }
+      }
+      &.green {
+        #middle-circle { fill: rgba(0, 173, 0, 0.2); }
+      }
+      &.red {
+        #middle-circle { fill: rgba(167, 0, 0, 0.2); }
+      }
+      &.playing.blue {
+        box-shadow: 2px 2px 20px rgb(0, 255, 255);
 
-    &.blue {
-      #middle-circle { fill: rgba(0, 255, 255, 0.2); }
-    }
+        #middle-circle { fill: rgba(0, 255, 255, 1); }
+      }
+      &.playing.purple {
+        box-shadow: 2px 2px 20px rgb(139, 0, 139);
 
-    &.purple {
-      #middle-circle { fill: rgba(139, 0, 139, 0.2); }
-    }
+        #middle-circle { fill: rgba(139, 0, 139, 1); }
+      }
+      &.playing.green {
+        box-shadow: 2px 2px 20px rgb(0, 173, 0);
 
-    &.green {
-      #middle-circle { fill: rgba(0, 173, 0, 0.2); }
-    }
+        #middle-circle { fill: rgba(0, 173, 0, 1); }
+      }
+      &.playing.red {
+        box-shadow: 2px 2px 20px rgb(167, 0, 0);
 
-    &.red {
-      #middle-circle { fill: rgba(167, 0, 0, 0.2); }
+        #middle-circle { fill: rgba(167, 0, 0, 1); }
+      }
     }
+  }
+  .instructions-comp {
+    position: absolute;
+    bottom: -130px;
+    color: white;
+    transition: all 0.4s ease-in-out;
 
-    &.playing.blue {
-      box-shadow: 2px 2px 20px rgb(0, 255, 255);
-      #middle-circle { fill: rgba(0, 255, 255, 1); }
+    .controls-tab {
+      margin: 0 auto;
+      width: 20%;
+      border-radius: 18px;
+      background-color: rgba(2, 86, 107, 1);
+      text-align: center;
+      opacity: 0.4;
+      transition: all 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+      svg{
+        margin-left: 5px;
+        width: 20px;
+        transition: all 0.4s linear;
+        fill: #fff;
+      }
     }
+    &.open {
+      bottom: 20px;
 
-    &.playing.purple {
-      box-shadow: 2px 2px 20px rgb(139, 0, 139);
-      #middle-circle { fill: rgba(139, 0, 139, 1); }
+      .controls-tab {
+        background-color: rgba(2, 86, 107, 0.2);
+        opacity: 1;
+
+        svg { transform: rotate(90deg)}
+      }
     }
+    .instructions-container {
+      position: relative;
+      font-family: monospace;
 
-    &.playing.green {
-      box-shadow: 2px 2px 20px rgb(0, 173, 0);
-      #middle-circle { fill: rgba(0, 173, 0, 1); }
-    }
+      span {
+        padding: 2em;
 
-    &.playing.red {
-      box-shadow: 2px 2px 20px rgb(167, 0, 0);
-      #middle-circle { fill: rgba(167, 0, 0, 1); }
+        &::after {
+          margin-left: 10px;
+          color: gold;
+          font-size: 1.2em;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+        &.forward::after {
+          content: "W"
+        }
+        &.back::after {
+          content: "S"
+        }
+        &.left::after {
+          content: "A"
+        }
+        &.right::after {
+          content: "D"
+        }
+        &.up::after {
+          content: "R"
+        }
+        &.down::after {
+          content: "F"
+        }
+        &.roll-left::after {
+          content: "Q"
+        }
+        &.roll-right::after {
+          content: "E"
+        }
+        &.yaw-left::after {
+          width: 30px;
+          height: 30px;
+          content: "←";
+        }
+        &.yaw-right::after {
+          content: "→"
+        }
+        &.pitch-up::after {
+          content: "↑"
+        }
+        &.pitch-down::after {
+          content: "↓"
+        }
+      }
     }
   }
 }
 
-.instructions-container {
-  position: absolute;
-  color: white;
-  font-family: monospace;
-  bottom: 0;
 
-  span {
-    padding: 2em;
-    &::after {
-      margin-left: 10px;
-      font-family: Arial, Helvetica, sans-serif;
-      color: gold;
-      font-size: 1.2em;
-    }
-
-    &.forward::after {
-      content: "W"
-    }
-
-    &.back::after {
-      content: "S"
-    }
-
-    &.left::after {
-      content: "A"
-    }
-
-    &.right::after {
-      content: "D"
-    }
-
-    &.up::after {
-      content: "R"
-    }
-
-    &.down::after {
-      content: "F"
-    }
-
-    &.roll-left::after {
-      content: "Q"
-    }
-
-    &.roll-right::after {
-      content: "E"
-    }
-
-    &.yaw-left::after {
-      content: "←";
-      height: 30px;
-      width: 30px;
-    }
-
-    &.yaw-right::after {
-      content: "→"
-    }
-
-    &.pitch-up::after {
-      content: "↑"
-    }
-
-    &.pitch-down::after {
-      content: "↓"
-    }
-  }
-}
 
 // rgba(0, 255, 255, 0.2); blue
 // rgba(139, 0, 139, 0.2); purple

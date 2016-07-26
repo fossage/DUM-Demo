@@ -58,7 +58,7 @@ export const mixer = DUM.Component((options) => {
       mixerNode.adjustGain(gainVal);
       
       xPos = Math.round(e.clientX - el.clientWidth / 2);
-      yPos = Math.round(e.clientY - el.clientHeight / 2);
+      yPos = Math.round(e.clientY - 100 - el.clientHeight / 2);
       container.style.top = `${yPos}px`;
       container.style.left = `${xPos}px`
     }

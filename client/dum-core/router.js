@@ -4,11 +4,13 @@ import {DUM} from './dum';
 
 DUM.Router = DUM.Service('Router', {});
 
-let _routes       = {};
-let _rootView     = null;
-let _prevState    = null;
-let _initialized  = false;
-let _currentState = null;
+let _routes            = {};
+let _rootView          = null;
+let _prevState         = null;
+let _initialized       = false;
+let _currentState      = null;
+let _disableStateClass = false;
+let _viewClassPrefix   = '-view';
 
 /*===============================================
             LISTENER INITIALIZATION
@@ -27,9 +29,11 @@ window.addEventListener('popstate', (e) => {
     
     Promise.resolve(iView)
     .then((view) => {
+      if(!_disableStateClass) _rootView.removeClass(`${_viewClassPrefix}-${_currentState.name}`)
       _currentState = _routes[state.name]
       _currentState.$$instanceView = view;
       _rootView.append(view);
+      if(!_disableStateClass) _rootView.addClass(`${_viewClassPrefix}-${_currentState.name}`);
       _fireStateEvent('stateChangeEnd', _routes[state.name]);
     });
   } else {
@@ -71,8 +75,10 @@ Object.defineProperties(DUM.Router, {
     value: (opts) => {
       if(!opts.root && opts.root.view) throw new Error('Router requires a root configuration object with a root view');
       Object.assign(DUM.Router.$$config, opts);
-      _rootView = opts.root.view();
-      _currentState = _routes.root = DUM.Router.$$config.root;
+      _rootView          = opts.root.view();
+      _currentState      = _routes.root = DUM.Router.$$config.root;
+      _viewClassPrefix   = opts.viewClassPrefix   || '-view';
+      _disableStateClass = opts.disableStateClass || false;
       DUM.attach(_rootView);
 
       return DUM.Router;
@@ -117,6 +123,7 @@ Object.defineProperties(DUM.Router, {
 
       Promise.resolve(state.$$instanceView)
       .then((iView) => {
+        if(!_disableStateClass) _rootView.removeClass(`${_viewClassPrefix}-${_currentState.name}`)
         state.$$instanceView = iView;
 
         let parent = state.$$instanceView.parentNode || _rootView;
@@ -128,6 +135,7 @@ Object.defineProperties(DUM.Router, {
 
         history.pushState({name: state.name, path: state.path}, state.name || '', state.path);
         _currentState = state;
+        if(!_disableStateClass) _rootView.setClass(`${_viewClassPrefix}-${_currentState.name}`)
 
        _fireStateEvent('stateChangeEnd', state);
       });

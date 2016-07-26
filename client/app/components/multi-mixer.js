@@ -37,7 +37,10 @@ export const multiMixer = DUM.Component((options) => {
     }),
 
     DUM.getSVG('images/ephemera/effects.svg')
-    .then(_handleSVGLoad)
+    .then(_handleSVGLoad),
+
+    DUM.getSVG('fonts/Entypo+/dots-two-horizontal.svg')
+    .then(_handleIconLoad)
   ];
    
   let instructionItems = [
@@ -66,15 +69,18 @@ export const multiMixer = DUM.Component((options) => {
 
       return DUM.span.text(`${item}:`).setClass(className)
     })
-  ).setClass('instructions-container', 'flex-parent', 'wrap', 'justify-content', 'center');
+  ).setClass('instructions-container', 'flex-parent', 'wrap', 'jc-center');
+
+let instructionsComp = DUM.div.setClass('instructions-comp');
 
   return Promise.all(promises)
   .then((vals) => {
     
     let [node1, node2, node3, node4, effects] = vals;
-    return DUM.$div(node1, node2, node3, node4, rcp.node, instructions, effects);
+    return DUM.$div(node1, node2, node3, node4, rcp.node, instructionsComp, effects)
+    .setClass('create-container')
+    .setStyles({height: `${window.innerHeight - 100}px`})
   });
-
   function _handleSVGLoad(svgNode) {
     let svg = Snap(svgNode);
     let reverb = svg.select('#reverb');
@@ -83,5 +89,18 @@ export const multiMixer = DUM.Component((options) => {
     return DUM.$div(svg.node).setClass('effects');
   }
 
- 
+  function _handleIconLoad(svgNode) {
+    return instructionsComp.append(
+      DUM.$div(
+        DUM.h3.text('Controls')
+        .append(
+          DUM.$span(svgNode).setClass('icon')
+        ).setClass('flex-parent', 'jc-center', 'ai-center')
+      ).setClass('controls-tab')
+      .click(() => {
+        instructionsComp.toggleClass('open');
+      }),
+      instructions
+    )
+  }
 });

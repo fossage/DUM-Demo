@@ -1,5 +1,6 @@
 'use strict';
 import {DUM} from '../../dum-core/dum';
+import {Reverb} from './reverb';
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let currentTime = 0;
@@ -26,6 +27,10 @@ export class MixerNode {
         audioCtx.decodeAudioData(data, (buffer) => {
           this.gainNode   = audioCtx.createGain();
           this.panNode    = audioCtx.createStereoPanner();
+          this.reverb     = Reverb(audioCtx);
+          this.reverb.wet = 2;
+          // this.splitter   = audioCtx.createChannelSplitter(2);
+          // this.merger     = audioCtx.createChannelMerger(2);
           this.scriptNode = audioCtx.createScriptProcessor();
           this.buffer     = buffer;
           this.isPlaying  = false;
@@ -72,7 +77,7 @@ export class MixerNode {
 
   play() {
     _play(this);
-    that.isPlaying = true;
+    this.isPlaying = true;
   }
 
   togglePlayback(time) {
@@ -99,10 +104,10 @@ function _play(that) {
   that.source        = audioCtx.createBufferSource();
   that.source.buffer = that.buffer;
   that.source.loop   = true;
-
-  that.source.connect(that.panNode);
-  that.panNode.connect(that.gainNode);
-  that.gainNode.connect(that.scriptNode);
+  that.source.connect(that.gainNode);
+  that.gainNode.connect(that.panNode);
+  that.panNode.connect(that.reverb);
+  that.reverb.connect(that.scriptNode);
   that.scriptNode.connect(audioCtx.destination);
   that.source[that.source.start ? 'start' : 'noteOn'](0, (currentTime - startTime) / 1000);
 }

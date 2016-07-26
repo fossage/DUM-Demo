@@ -69,7 +69,7 @@ export class RaycasterPlane{
 
     
     this.starField = this.generateStarField();
-    this.starField.scale.set( 20,20,-200 );
+    this.starField.scale.set( 80,80,-80 );
     this.starField.position.set( 0, 0 ,0 );
     this.scene.add(this.starField);
 

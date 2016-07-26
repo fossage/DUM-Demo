@@ -7,7 +7,7 @@ export let mainNav = DUM.Component((options) => {
   /*=========== ELEMENT SETUP ============*/
   let navList  = [];
   let group    = null;
-  let mainNav  = DUM.ul.setClass('flex-parent', 'justify-content', 'space-around', 'wrap', 'ai-center');
+  let mainNav  = DUM.ul.setClass('flex-parent', 'jc-space-around', 'wrap', 'ai-center');
 
   options.items.forEach((item) => {
     let basicItem = DUM[item.type || 'li'].setClass(item.classes);

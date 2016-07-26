@@ -14,7 +14,7 @@ export const artists = DUM.Component(() => {
       containerClasses: 'artists',
       template: _itemTemplate,
       items: items
-    }).setClass('flex-parent', 'wrap', 'justify-content', 'center');;
+    }).setClass('flex-parent', 'wrap', 'jc-center');;
 
     function _itemTemplate(item) {
       // ELEMENT SETUP
