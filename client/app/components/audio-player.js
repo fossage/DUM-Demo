@@ -19,7 +19,7 @@ export const audioPlayer = DUM.Component((options) => {
   let visualizer = new AudioVisualizer({trackUrl: opts.trackUrl})
   let canvas     = visualizer.canvas;
 
-  return DUM.getSVG(opts.svgPath)
+  return DUM.loadSVG(opts.svgPath)
   .then((svgNode) => {
     // SVG REFERENCE SETUP
     svg                = Snap(svgNode);

@@ -3,7 +3,7 @@ import {News}      from '../services/news-service';
 import {SlideOpen} from '../component-templates/slide-open';
 
 export const news = DUM.Component((options = {}) => {
-  return DUM.getSVG('fonts/Entypo+/tag-no-string.svg')
+  return DUM.loadSVG('fonts/Entypo+/tag-no-string.svg')
   .then((svg) => {
     return News.get()
     .then((newsItems) => {

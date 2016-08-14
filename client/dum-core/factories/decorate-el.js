@@ -159,6 +159,10 @@ export const DecorateEl = (function() {
         value: _bindElToFunc(el, toggleClass)
       },
 
+      hasClass: {
+        value: _bindElToFunc(el, hasClass)
+      },
+
       setId: {
         value: _bindElToFunc(el, setId)
       },
@@ -226,7 +230,7 @@ export const DecorateEl = (function() {
 
   function append(el, ...args) {
     let fragment = document.createDocumentFragment();
-
+    
     [...args].forEach((childEl) => {
       if(childEl){
         if(childEl.constructor !== Array){
@@ -249,6 +253,9 @@ export const DecorateEl = (function() {
     return el;
   }
 
+  // Sets up a store of subscribed events with associated callbacks directly on the element
+  // @todo - Need to move towards a system where the element itself is never extended, but rather
+  // a property on a wrapper object which will contain all extra methods and data such as event subscriptions
   function on(el, eventName, cb) {
     let cbs;
     if(cb.constructor === Array) {
@@ -387,6 +394,10 @@ export const DecorateEl = (function() {
   function toggleClass (el, className) {
     el.classList.toggle(className);
     return el;
+  }
+
+  function hasClass(el, className) {
+    return el.classList.contains(className);
   }
 
   function setId(el, id) {

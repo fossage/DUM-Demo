@@ -1,8 +1,9 @@
 'use strict';
-import {DUM}      from '../dum-core/dum';
-import {artists}  from './components/artists-component';
-import {news}     from './components/news-component';
-import {multiMixer}    from './components/multi-mixer';
+import {DUM}        from '../dum-core/dum';
+import {artists}    from './components/artists-component';
+import {news}       from './components/news-component';
+import {multiMixer} from './components/multi-mixer';
+import {mixingConsole} from './components/mixing-console-component';
 
 /*======== ROUTES =======*/
 DUM.Router
@@ -25,9 +26,9 @@ DUM.Router
     view: multiMixer
   }, 
 
-  // {
-  //   name: 'videos',
-  //   path: '/videos',
-  //   view: null
-  // }
+  {
+    name: 'videos',
+    path: '/videos',
+    view: mixingConsole
+  }
 ]);

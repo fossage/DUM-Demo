@@ -5,6 +5,7 @@ import {curry} from './utils/functional';
 import {traverseNodes, callNodesEventCallbacks} from './utils/element'
 
 document.body = DUM.decorateEl(document.body);
+document.body.$$mounted = true;
 
 Object.defineProperties(DUM, {
 

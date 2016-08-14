@@ -82,7 +82,7 @@ export class DUM extends Loader {
     [...args].forEach((arg) => {
       if(arg) {
         arg = elementsToArray(arg);
-        
+
         arg.forEach((elem) => {
           if(!elem.$$mounted){
             
@@ -118,12 +118,16 @@ export class DUM extends Loader {
     return binder;
   }
 
-  static getSVG(path, raw) {
-    return Loader.getSVG(path, raw);
+  static loadSVG(path, raw) {
+    return Loader.loadSVG(path, raw);
   }
 
-  static getHTML(path, raw) {
-    return Loader.getHTML(path, raw);
+  static loadHTML(path, raw) {
+    return Loader.loadHTML(path, raw);
+  }
+
+  static loadArrayBuffer(path, raw) {
+    return Loader.loadArrayBuffer(path, raw);
   }
 }
 

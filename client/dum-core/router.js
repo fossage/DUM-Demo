@@ -127,10 +127,10 @@ Object.defineProperties(DUM.Router, {
         state.$$instanceView = iView;
 
         let parent = state.$$instanceView.parentNode || _rootView;
-        let appendMethod = state.$$instanceView.parentNode ? 'append' : 'appendChild';
+        // let appendMethod = state.$$instanceView.parentNode ? 'append' : 'appendChild';
 
         if(_currentState.$$instanceView && _currentState.$$instanceView.remove) _currentState.$$instanceView.remove();
-        if(state.$$instanceView) parent[appendMethod](state.$$instanceView);
+        if(state.$$instanceView) parent.append(state.$$instanceView);
         _currentState.to = null;
 
         history.pushState({name: state.name, path: state.path}, state.name || '', state.path);

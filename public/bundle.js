@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "fd04e56b6c5dbb1e6717"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "8f5299ddf5fff44f15ae"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -600,8 +600,8 @@
 	__webpack_require__(309);
 	__webpack_require__(310);
 	__webpack_require__(311);
+	__webpack_require__(321);
 	__webpack_require__(322);
-	__webpack_require__(323);
 
 /***/ },
 /* 1 */
@@ -15790,14 +15790,19 @@
 	      return binder;
 	    }
 	  }, {
-	    key: 'getSVG',
-	    value: function getSVG(path, raw) {
-	      return _Loader2.Loader.getSVG(path, raw);
+	    key: 'loadSVG',
+	    value: function loadSVG(path, raw) {
+	      return _Loader2.Loader.loadSVG(path, raw);
 	    }
 	  }, {
-	    key: 'getHTML',
-	    value: function getHTML(path, raw) {
-	      return _Loader2.Loader.getHTML(path, raw);
+	    key: 'loadHTML',
+	    value: function loadHTML(path, raw) {
+	      return _Loader2.Loader.loadHTML(path, raw);
+	    }
+	  }, {
+	    key: 'loadArrayBuffer',
+	    value: function loadArrayBuffer(path, raw) {
+	      return _Loader2.Loader.loadArrayBuffer(path, raw);
 	    }
 	  }]);
 
@@ -16132,6 +16137,10 @@
 	        value: _bindElToFunc(el, toggleClass)
 	      },
 
+	      hasClass: {
+	        value: _bindElToFunc(el, hasClass)
+	      },
+
 	      setId: {
 	        value: _bindElToFunc(el, setId)
 	      },
@@ -16404,6 +16413,10 @@
 	  function toggleClass(el, className) {
 	    el.classList.toggle(className);
 	    return el;
+	  }
+
+	  function hasClass(el, className) {
+	    return el.classList.contains(className);
 	  }
 
 	  function setId(el, id) {
@@ -16690,8 +16703,8 @@
 	  }
 
 	  _createClass(Loader, null, [{
-	    key: 'getSVG',
-	    value: function getSVG(path, raw) {
+	    key: 'loadSVG',
+	    value: function loadSVG(path, raw) {
 	      var svgPromise = _load(path, 'image/svg+xml');
 	      if (!raw) return svgPromise.then(function (str) {
 	        return (0, _element.convertStringToEl)(str, 'svg');
@@ -16700,11 +16713,16 @@
 	      return svgPromise;
 	    }
 	  }, {
-	    key: 'getHTML',
-	    value: function getHTML(path, raw) {
+	    key: 'loadHTML',
+	    value: function loadHTML(path, raw) {
 	      var htmlPromise = _load(path, 'text/html');
 	      if (!raw) return htmlPromise.then(_element.convertStringToEl);
 	      return htmlPromise;
+	    }
+	  }, {
+	    key: 'loadArrayBuffer',
+	    value: function loadArrayBuffer(path) {
+	      return _load(path, 'arraybuffer');
 	    }
 	  }]);
 
@@ -16716,7 +16734,8 @@
 	  'image/svg+xml': 'text',
 	  'text/html': 'text',
 	  'text/css': 'text',
-	  'application/json': 'json'
+	  'application/json': 'json',
+	  'arraybuffer': 'arrayBuffer'
 	};
 
 	function _load(path, contentType) {
@@ -16749,6 +16768,8 @@
 	var _prevState = null;
 	var _initialized = false;
 	var _currentState = null;
+	var _disableStateClass = false;
+	var _viewClassPrefix = '-view';
 
 	/*===============================================
 	            LISTENER INITIALIZATION
@@ -16766,9 +16787,11 @@
 	    var iView = _routes[state.name].view();
 
 	    Promise.resolve(iView).then(function (view) {
+	      if (!_disableStateClass) _rootView.removeClass(_viewClassPrefix + '-' + _currentState.name);
 	      _currentState = _routes[state.name];
 	      _currentState.$$instanceView = view;
 	      _rootView.append(view);
+	      if (!_disableStateClass) _rootView.addClass(_viewClassPrefix + '-' + _currentState.name);
 	      _fireStateEvent('stateChangeEnd', _routes[state.name]);
 	    });
 	  } else {
@@ -16816,6 +16839,8 @@
 	      Object.assign(_dum.DUM.Router.$$config, opts);
 	      _rootView = opts.root.view();
 	      _currentState = _routes.root = _dum.DUM.Router.$$config.root;
+	      _viewClassPrefix = opts.viewClassPrefix || '-view';
+	      _disableStateClass = opts.disableStateClass || false;
 	      _dum.DUM.attach(_rootView);
 
 	      return _dum.DUM.Router;
@@ -16859,6 +16884,7 @@
 	      state.$$instanceView = state.view();
 
 	      Promise.resolve(state.$$instanceView).then(function (iView) {
+	        if (!_disableStateClass) _rootView.removeClass(_viewClassPrefix + '-' + _currentState.name);
 	        state.$$instanceView = iView;
 
 	        var parent = state.$$instanceView.parentNode || _rootView;
@@ -16870,6 +16896,7 @@
 
 	        history.pushState({ name: state.name, path: state.path }, state.name || '', state.path);
 	        _currentState = state;
+	        if (!_disableStateClass) _rootView.setClass(_viewClassPrefix + '-' + _currentState.name);
 
 	        _fireStateEvent('stateChangeEnd', state);
 	      });
@@ -18407,7 +18434,7 @@
 	  /*=========== ELEMENT SETUP ============*/
 	  var navList = [];
 	  var group = null;
-	  var mainNav = _dum.DUM.ul.setClass('flex-parent', 'justify-content', 'space-around', 'wrap', 'ai-center');
+	  var mainNav = _dum.DUM.ul.setClass('flex-parent', 'jc-space-around', 'wrap', 'ai-center');
 
 	  options.items.forEach(function (item) {
 	    var basicItem = _dum.DUM[item.type || 'li'].setClass(item.classes);
@@ -18546,7 +18573,7 @@
 	var content = __webpack_require__(316);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(321)(content, {});
+	var update = __webpack_require__(320)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(true) {
@@ -18572,7 +18599,7 @@
 	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Neucha);", ""]);
 
 	// module
-	exports.push([module.id, "@charset \"UTF-8\";\n/* http://meyerweb.com/eric/tools/css/reset/ \n   v2.0 | 20110126\n   License: none (public domain)\n*/\nhtml, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font-size: 100%;\n  font: inherit;\n  vertical-align: baseline; }\n\n/* HTML5 display-role reset for older browsers */\narticle, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {\n  display: block; }\n\nbody {\n  line-height: 1; }\n\nol, ul {\n  list-style: none; }\n\nblockquote, q {\n  quotes: none; }\n\nblockquote:before, blockquote:after {\n  content: '';\n  content: none; }\n\nq:before, q:after {\n  content: '';\n  content: none; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\n.flex-parent {\n  display: flex; }\n  .flex-parent.justify-content.flex-start {\n    justify-content: flex-start; }\n  .flex-parent.justify-content.flex-end {\n    justify-content: flex-end; }\n  .flex-parent.justify-content.center {\n    justify-content: center; }\n  .flex-parent.justify-content.space-around {\n    justify-content: space-around; }\n  .flex-parent.justify-content.spcae-betwee {\n    justify-content: space-between; }\n  .flex-parent.ai-flex-start {\n    align-items: flex-start; }\n  .flex-parent.ai-flex-end {\n    align-items: flex-end; }\n  .flex-parent.ai-center {\n    align-items: center; }\n  .flex-parent.ai-stretch {\n    align-items: stretch; }\n  .flex-parent.ai-baseline {\n    align-items: baseline; }\n  .flex-parent.wrap {\n    flex-wrap: wrap; }\n  .flex-parent.no-wrap {\n    flex-wrap: nowrap; }\n  .flex-parent .flex-1 {\n    flex: 1; }\n  .flex-parent .flex-2 {\n    flex: 2; }\n  .flex-parent .flex-3 {\n    flex: 3; }\n  .flex-parent .flex-4 {\n    flex: 4; }\n  .flex-parent .flex-5 {\n    flex: 5; }\n  .flex-parent .flex-6 {\n    flex: 6; }\n  .flex-parent .flex-7 {\n    flex: 7; }\n  .flex-parent .flex-8 {\n    flex: 8; }\n  .flex-parent .flex-9 {\n    flex: 9; }\n  .flex-parent .flex-10 {\n    flex: 10; }\n\n*, a, h1, h2, h3, h4, h5, p, li {\n  font-family: monospace; }\n\n.clearfix:after {\n  display: table;\n  clear: both;\n  content: \" \"; }\n\n* {\n  box-sizing: border-box; }\n\nbody {\n  background-image: url(" + __webpack_require__(318) + ");\n  background-attachment: fixed; }\n\na {\n  color: #1c9c95; }\n\n.link {\n  cursor: pointer; }\n\nh1 {\n  font-size: 2em; }\n\nh2 {\n  font-size: 0em; }\n\nh3 {\n  font-size: -2em; }\n\nh4 {\n  font-size: -4em; }\n\nh5 {\n  font-size: -6em; }\n\nh6 {\n  font-size: -8em; }\n\n.select-custom ul {\n  position: absolute;\n  z-index: 10;\n  padding: 0;\n  max-height: 350px;\n  width: 100%;\n  background-color: #fff;\n  cursor: pointer;\n  transition: all 0.1s ease-in-out; }\n  .select-custom ul.col {\n    padding: 0; }\n  .select-custom ul li:hover {\n    background-color: #f2f2f2; }\n  .select-custom ul li.selected {\n    background-color: darkorange;\n    color: #fff; }\n  .select-custom ul li.selected:hover {\n    background-color: #e67e00; }\n  .select-custom ul.closed {\n    overflow: hidden;\n    height: 0;\n    box-shadow: 0; }\n  .select-custom ul.open {\n    overflow: auto;\n    height: auto;\n    box-shadow: 2px 2px 5px; }\n\n.select-custom h4 {\n  margin-bottom: 0;\n  margin-left: 20px;\n  cursor: pointer; }\n\nul.list {\n  margin: 0 auto;\n  max-width: 1000px;\n  width: 90%;\n  border: none; }\n\n.slide-container {\n  overflow: hidden;\n  height: 0;\n  transition: all 0.3s ease-in-out; }\n  .slide-container.slide-open {\n    overflow: auto;\n    height: 400px; }\n  .slide-container img {\n    width: 100%; }\n\n.three-dee {\n  position: absolute;\n  left: 0; }\n\nheader.main-header {\n  padding: 0 2em; }\n  header.main-header nav {\n    position: fixed;\n    top: 0;\n    left: 0;\n    z-index: 100;\n    padding: 0 2em;\n    width: 100%;\n    border-bottom: 1px solid #aaa;\n    background-color: #326496; }\n    header.main-header nav .nav-item {\n      color: aliceblue;\n      text-align: center;\n      text-transform: uppercase;\n      font-size: 1.7em;\n      font-family: 'Neucha', cursive; }\n      header.main-header nav .nav-item.current-state:not(.main-logo) {\n        text-decoration: underline; }\n      header.main-header nav .nav-item span {\n        text-shadow: 2px 2px 3px black;\n        cursor: pointer;\n        transition: all 0.2s ease-out; }\n      header.main-header nav .nav-item span:hover {\n        color: darkorange; }\n      header.main-header nav .nav-item.main-logo {\n        flex: 2;\n        height: 100px;\n        background-image: url(" + __webpack_require__(319) + ");\n        background-position: top center;\n        background-size: contain;\n        background-repeat: no-repeat; }\n\n.effects {\n  position: absolute;\n  display: none; }\n  .effects svg {\n    position: absolute;\n    width: 144px;\n    height: 350px;\n    left: 0; }\n    .effects svg .base {\n      background: #3B3B3B;\n      box-shadow: 0px 2px 4px 0px rgba(171, 171, 171, 0.5); }\n    .effects svg .outer {\n      border: 3px solid #4C4C4C;\n      background: #191919;\n      box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .center {\n      background-image: radial-gradient(50% 100%, #FFFFFF 20%, #959292 57%, #D8D8D8 100%); }\n    .effects svg .indicator {\n      background-image: radial-gradient(50% 100%, #000000 52%, #B2B2B2 100%); }\n    .effects svg .blue {\n      border: 1px solid #312D2D;\n      border-radius: 2px;\n      background: rgba(0, 255, 255, 0.2);\n      box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .purple {\n      border: 1px solid #312D2D;\n      border-radius: 2px;\n      background: rgba(139, 0, 139, 0.2);\n      box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .green {\n      border: 1px solid #312D2D;\n      border-radius: 2px;\n      background: rgba(0, 173, 0, 0.2);\n      box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .red {\n      border: 1px solid #312D2D;\n      border-radius: 2px;\n      background: rgba(167, 0, 0, 0.2);\n      box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .reverb, .effects svg .delay {\n      color: #E5E5E5;\n      font-size: 19px;\n      font-family: OCRAStd; }\n\ndiv.todo-wrapper {\n  margin: 0 auto;\n  max-width: 600px; }\n  div.todo-wrapper a.btn {\n    position: relative;\n    top: 18px; }\n  div.todo-wrapper input.input-field {\n    position: relative;\n    top: 20px;\n    width: 90%;\n    height: 20px; }\n  div.todo-wrapper ul.list li.collection-header {\n    text-align: center; }\n  div.todo-wrapper ul.list li.collection-item {\n    cursor: pointer; }\n  div.todo-wrapper ul.list li.todo-input {\n    padding-bottom: 20px; }\n\n.artists.mounted {\n  opacity: 1; }\n\n.artists {\n  padding: 0.5em;\n  opacity: 0; }\n  .artists .artist-tile {\n    position: relative;\n    margin: 1em;\n    min-width: 350px;\n    max-width: 350px;\n    opacity: 0;\n    transition: transform 0.4s, opacity 0.4s;\n    transform: translateY(100px) translateZ(-1000px); }\n    .artists .artist-tile figure {\n      box-shadow: 2px 2px 5px #111; }\n      .artists .artist-tile figure .image-container {\n        overflow: hidden;\n        min-height: 220px;\n        max-height: 220px;\n        height: 18vw; }\n        .artists .artist-tile figure .image-container > div {\n          position: absolute;\n          top: 0;\n          padding: 1em;\n          min-height: 220px;\n          max-height: 220px;\n          width: 100%;\n          height: 18vw;\n          background-color: rgba(0, 0, 0, 0.6);\n          opacity: 0;\n          transition: opacity 0.3s ease-in-out; }\n          .artists .artist-tile figure .image-container > div p {\n            overflow: scroll;\n            min-height: 145px;\n            height: 10vw;\n            border-bottom: 1px solid;\n            color: white;\n            font-size: 1.3em;\n            font-family: monospace;\n            line-height: 1.4em; }\n          .artists .artist-tile figure .image-container > div div {\n            text-align: center; }\n          .artists .artist-tile figure .image-container > div canvas {\n            position: absolute;\n            top: 206px;\n            left: 0;\n            width: 350px;\n            height: 50px;\n            opacity: 0;\n            filter: drop-shadow(-3px 2px 20px #666);\n            transition: all 0.5s ease-in-out; }\n          .artists .artist-tile figure .image-container > div svg {\n            margin-top: 5px;\n            padding: 0.1em;\n            max-width: 50px;\n            max-height: 50px;\n            width: 100%;\n            cursor: pointer; }\n            .artists .artist-tile figure .image-container > div svg #play-button > path {\n              transition: fill 0.3s ease-in-out;\n              fill: #ccc; }\n            .artists .artist-tile figure .image-container > div svg #hoops {\n              opacity: 0;\n              transition: opacity 0.4s ease-in-out; }\n            .artists .artist-tile figure .image-container > div svg circle {\n              fill: darkturquoise;\n              stroke: black; }\n      .artists .artist-tile figure .image-container:hover > div, .artists .artist-tile figure .image-container.playing > div {\n        opacity: 1; }\n      .artists .artist-tile figure .image-container.playing > div svg #hoops {\n        opacity: 1; }\n      .artists .artist-tile figure .image-container.playing > div svg {\n        filter: drop-shadow(1px 1px 20px #fff) brightness(1.4); }\n      .artists .artist-tile figure .image-container.playing canvas {\n        opacity: 1; }\n      .artists .artist-tile figure .image-container.playing svg #play-button > path {\n        fill: #fff; }\n      .artists .artist-tile figure figcaption {\n        margin: 0 0 0.4em 0;\n        padding: 0.3em;\n        background-color: rgba(10, 10, 10, 0.5);\n        text-align: center;\n        font-size: 1.4em;\n        transition: all 0.3s ease-in-out; }\n        .artists .artist-tile figure figcaption a {\n          color: floralwhite;\n          font-family: monospace; }\n      .artists .artist-tile figure figcaption.playing {\n        background-color: rgba(0, 0, 0, 0.8); }\n      .artists .artist-tile figure figcaption.playing a {\n        color: #666; }\n      .artists .artist-tile figure img {\n        width: 100%; }\n  .artists .artist-tile.mounted {\n    opacity: 1;\n    transition: transform 0.4s, opacity 0.4s;\n    transform: translateY(0) translateZ(0); }\n  .artists .artist-tile.mounted:nth-child(2) {\n    transition-delay: 0.1s; }\n  .artists .artist-tile.mounted:nth-child(3) {\n    transition-delay: 0.2s; }\n  .artists .artist-tile.mounted:nth-child(4) {\n    transition-delay: 0.3s; }\n  .artists .artist-tile.mounted:nth-child(5) {\n    transition-delay: 0.4s; }\n  .artists .artist-tile.mounted:nth-child(6) {\n    transition-delay: 0.5s; }\n  .artists .artist-tile.mounted:nth-child(7) {\n    transition-delay: 0.6s; }\n\n.news-container {\n  margin: 0 auto;\n  padding: 0.5em 2em;\n  width: 80%; }\n  .news-container .news-item-container {\n    margin: 2em 0;\n    padding: 1em;\n    border-radius: 2px;\n    color: #fff; }\n    .news-container .news-item-container header {\n      margin: 1.2em 0;\n      padding: 0.5em 0;\n      border-bottom: 1px solid #666; }\n    .news-container .news-item-container header h1 {\n      font-weight: 500;\n      font-size: 3em;\n      font-family: monospace; }\n    .news-container .news-item-container header p span {\n      color: chocolate; }\n    .news-container .news-item-container section > p {\n      font-size: 1.25em;\n      line-height: 1.5em; }\n    .news-container .news-item-container section img {\n      float: left;\n      margin-right: 2em;\n      max-width: 400px;\n      max-height: 400px; }\n    .news-container .news-item-container section .tag-container {\n      margin-top: 0.8em; }\n      .news-container .news-item-container section .tag-container .tag {\n        margin: 0 0.2em;\n        padding: 0.2em 1em;\n        border-radius: 6px;\n        background-color: #111;\n        font-size: 0.5em;\n        font-family: sans-serif; }\n        .news-container .news-item-container section .tag-container .tag svg {\n          position: relative;\n          top: 3px;\n          margin-right: 5px;\n          height: 15px;\n          fill: #fff; }\n\n.audio-node-container {\n  opacity: 0.8; }\n  .audio-node-container svg {\n    width: 125px;\n    height: 125px;\n    border-radius: 200px;\n    background-color: #000;\n    cursor: -webkit-grab;\n    transition: all 0.05s ease; }\n    .audio-node-container svg #outer-circle {\n      background-image: radial-gradient(50% 100%, #716E6E 100%, #3E3B3B 50%);\n      box-shadow: 2px 2px 13px 3px rgba(255, 255, 255, 0.5);\n      fill: #333; }\n    .audio-node-container svg #middle-circle {\n      background: #9BC1C5;\n      box-shadow: 1px 1px 12px 3px rgba(0, 0, 0, 0.48);\n      transition: all 0.2s ease-in-out; }\n    .audio-node-container svg #center-circle {\n      border: 1px solid #000000;\n      background-image: radial-gradient(50% 100%, #8A8A8A 57%, #D8D8D8 100%);\n      fill: rgba(0, 0, 0, 0.8); }\n    .audio-node-container svg.grabbing {\n      cursor: -webkit-grabbing; }\n    .audio-node-container svg:focus {\n      outline: none; }\n    .audio-node-container svg.blue #middle-circle {\n      fill: rgba(0, 255, 255, 0.2); }\n    .audio-node-container svg.purple #middle-circle {\n      fill: rgba(139, 0, 139, 0.2); }\n    .audio-node-container svg.green #middle-circle {\n      fill: rgba(0, 173, 0, 0.2); }\n    .audio-node-container svg.red #middle-circle {\n      fill: rgba(167, 0, 0, 0.2); }\n    .audio-node-container svg.playing.blue {\n      box-shadow: 2px 2px 20px cyan; }\n      .audio-node-container svg.playing.blue #middle-circle {\n        fill: cyan; }\n    .audio-node-container svg.playing.purple {\n      box-shadow: 2px 2px 20px darkmagenta; }\n      .audio-node-container svg.playing.purple #middle-circle {\n        fill: darkmagenta; }\n    .audio-node-container svg.playing.green {\n      box-shadow: 2px 2px 20px #00ad00; }\n      .audio-node-container svg.playing.green #middle-circle {\n        fill: #00ad00; }\n    .audio-node-container svg.playing.red {\n      box-shadow: 2px 2px 20px #a70000; }\n      .audio-node-container svg.playing.red #middle-circle {\n        fill: #a70000; }\n\n.instructions-comp {\n  position: absolute;\n  bottom: 0;\n  color: white; }\n  .instructions-comp .controls-tab {\n    text-align: center; }\n    .instructions-comp .controls-tab > h3::after {\n      content: url(" + __webpack_require__(320) + ");\n      width: 20px;\n      height: 20px; }\n  .instructions-comp .instructions-container {\n    font-family: monospace; }\n    .instructions-comp .instructions-container span {\n      padding: 2em; }\n      .instructions-comp .instructions-container span::after {\n        margin-left: 10px;\n        color: gold;\n        font-size: 1.2em;\n        font-family: Arial, Helvetica, sans-serif; }\n      .instructions-comp .instructions-container span.forward::after {\n        content: \"W\"; }\n      .instructions-comp .instructions-container span.back::after {\n        content: \"S\"; }\n      .instructions-comp .instructions-container span.left::after {\n        content: \"A\"; }\n      .instructions-comp .instructions-container span.right::after {\n        content: \"D\"; }\n      .instructions-comp .instructions-container span.up::after {\n        content: \"R\"; }\n      .instructions-comp .instructions-container span.down::after {\n        content: \"F\"; }\n      .instructions-comp .instructions-container span.roll-left::after {\n        content: \"Q\"; }\n      .instructions-comp .instructions-container span.roll-right::after {\n        content: \"E\"; }\n      .instructions-comp .instructions-container span.yaw-left::after {\n        width: 30px;\n        height: 30px;\n        content: \"\\2190\"; }\n      .instructions-comp .instructions-container span.yaw-right::after {\n        content: \"\\2192\"; }\n      .instructions-comp .instructions-container span.pitch-up::after {\n        content: \"\\2191\"; }\n      .instructions-comp .instructions-container span.pitch-down::after {\n        content: \"\\2193\"; }\n\n/* label color */\n.input-field label {\n  color: #000; }\n\n/* label focus color */\n.input-field input[type=text]:focus + label {\n  color: #000; }\n\n/* label underline focus color */\n.input-field input[type=text]:focus {\n  border-bottom: 1px solid #000;\n  box-shadow: 0 1px 0 0 #000; }\n\n/* valid color */\n.input-field input[type=text].valid {\n  border-bottom: 1px solid #000;\n  box-shadow: 0 1px 0 0 #000; }\n\n/* invalid color */\n.input-field input[type=text].invalid {\n  border-bottom: 1px solid #000;\n  box-shadow: 0 1px 0 0 #000; }\n\n/* icon prefix focus color */\n.input-field .prefix.active {\n  color: #000; }\n\n.highlight li.collection-item:not(.todo-input):hover {\n  background-color: #eee; }\n\n.video-container video {\n  min-height: 300px; }\n\n.video-container .video-elements {\n  display: block; }\n", ""]);
+	exports.push([module.id, "@charset \"UTF-8\";\n/* http://meyerweb.com/eric/tools/css/reset/ \n   v2.0 | 20110126\n   License: none (public domain)\n*/\nhtml, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font-size: 100%;\n  font: inherit;\n  vertical-align: baseline; }\n\n/* HTML5 display-role reset for older browsers */\narticle, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {\n  display: block; }\n\nbody {\n  line-height: 1; }\n\nol, ul {\n  list-style: none; }\n\nblockquote, q {\n  quotes: none; }\n\nblockquote:before, blockquote:after {\n  content: '';\n  content: none; }\n\nq:before, q:after {\n  content: '';\n  content: none; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\n.flex-parent {\n  display: flex; }\n  .flex-parent.jc-flex-start {\n    justify-content: flex-start; }\n  .flex-parent.jc-flex-end {\n    justify-content: flex-end; }\n  .flex-parent.jc-center {\n    justify-content: center; }\n  .flex-parent.jc-space-around {\n    justify-content: space-around; }\n  .flex-parent.jc-space-between {\n    justify-content: space-between; }\n  .flex-parent.ai-flex-start {\n    align-items: flex-start; }\n  .flex-parent.ai-flex-end {\n    align-items: flex-end; }\n  .flex-parent.ai-center {\n    align-items: center; }\n  .flex-parent.ai-stretch {\n    align-items: stretch; }\n  .flex-parent.ai-baseline {\n    align-items: baseline; }\n  .flex-parent.wrap {\n    flex-wrap: wrap; }\n  .flex-parent.no-wrap {\n    flex-wrap: nowrap; }\n  .flex-parent .flex-1 {\n    flex: 1; }\n  .flex-parent .flex-2 {\n    flex: 2; }\n  .flex-parent .flex-3 {\n    flex: 3; }\n  .flex-parent .flex-4 {\n    flex: 4; }\n  .flex-parent .flex-5 {\n    flex: 5; }\n  .flex-parent .flex-6 {\n    flex: 6; }\n  .flex-parent .flex-7 {\n    flex: 7; }\n  .flex-parent .flex-8 {\n    flex: 8; }\n  .flex-parent .flex-9 {\n    flex: 9; }\n  .flex-parent .flex-10 {\n    flex: 10; }\n\n*, a, h1, h2, h3, h4, h5, p, li {\n  font-family: monospace; }\n\n.clearfix:after {\n  display: table;\n  clear: both;\n  content: \" \"; }\n\n* {\n  box-sizing: border-box; }\n\nbody {\n  background-image: url(" + __webpack_require__(318) + ");\n  background-attachment: fixed; }\n\na {\n  color: #1c9c95; }\n\n.link {\n  cursor: pointer; }\n\nh1 {\n  font-size: 2em; }\n\nh2 {\n  font-size: 0em; }\n\nh3 {\n  font-size: -2em; }\n\nh4 {\n  font-size: -4em; }\n\nh5 {\n  font-size: -6em; }\n\nh6 {\n  font-size: -8em; }\n\n.select-custom ul {\n  position: absolute;\n  z-index: 10;\n  padding: 0;\n  max-height: 350px;\n  width: 100%;\n  background-color: #fff;\n  cursor: pointer;\n  transition: all 0.1s ease-in-out; }\n  .select-custom ul.col {\n    padding: 0; }\n  .select-custom ul li:hover {\n    background-color: #f2f2f2; }\n  .select-custom ul li.selected {\n    background-color: darkorange;\n    color: #fff; }\n  .select-custom ul li.selected:hover {\n    background-color: #e67e00; }\n  .select-custom ul.closed {\n    overflow: hidden;\n    height: 0;\n    box-shadow: 0; }\n  .select-custom ul.open {\n    overflow: auto;\n    height: auto;\n    box-shadow: 2px 2px 5px; }\n\n.select-custom h4 {\n  margin-bottom: 0;\n  margin-left: 20px;\n  cursor: pointer; }\n\nul.list {\n  margin: 0 auto;\n  max-width: 1000px;\n  width: 90%;\n  border: none; }\n\n.slide-container {\n  overflow: hidden;\n  height: 0;\n  transition: all 0.3s ease-in-out; }\n  .slide-container.slide-open {\n    overflow: auto;\n    height: 400px; }\n  .slide-container img {\n    width: 100%; }\n\n.three-dee {\n  position: absolute;\n  left: 0; }\n\nheader.main-header nav {\n  position: fixed;\n  top: 0;\n  left: 0;\n  z-index: 100;\n  padding: 0 2em;\n  width: 100%;\n  border-bottom: 1px solid #aaa;\n  background-color: #326496; }\n  header.main-header nav .nav-item {\n    color: aliceblue;\n    text-align: center;\n    text-transform: uppercase;\n    font-size: 1.7em;\n    font-family: 'Neucha', cursive; }\n    header.main-header nav .nav-item.current-state:not(.main-logo) {\n      text-decoration: underline; }\n    header.main-header nav .nav-item span {\n      text-shadow: 2px 2px 3px black;\n      cursor: pointer;\n      transition: all 0.2s ease-out; }\n    header.main-header nav .nav-item span:hover {\n      color: darkorange; }\n    header.main-header nav .nav-item.main-logo {\n      flex: 2;\n      height: 100px;\n      background-image: url(" + __webpack_require__(319) + ");\n      background-position: top center;\n      background-size: contain;\n      background-repeat: no-repeat; }\n\n.effects {\n  position: absolute; }\n  .effects svg {\n    position: absolute;\n    width: 144px;\n    height: 350px;\n    left: 0; }\n    .effects svg .base {\n      background: #3B3B3B;\n      box-shadow: 0px 2px 4px 0px rgba(171, 171, 171, 0.5); }\n    .effects svg .outer {\n      border: 3px solid #4C4C4C;\n      background: #191919;\n      box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .center {\n      background-image: radial-gradient(50% 100%, #FFFFFF 20%, #959292 57%, #D8D8D8 100%); }\n    .effects svg .indicator {\n      background-image: radial-gradient(50% 100%, #000000 52%, #B2B2B2 100%); }\n    .effects svg .blue {\n      border: 1px solid #312D2D;\n      border-radius: 2px;\n      background: rgba(0, 255, 255, 0.2);\n      box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .purple {\n      border: 1px solid #312D2D;\n      border-radius: 2px;\n      background: rgba(139, 0, 139, 0.2);\n      box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .green {\n      border: 1px solid #312D2D;\n      border-radius: 2px;\n      background: rgba(0, 173, 0, 0.2);\n      box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .red {\n      border: 1px solid #312D2D;\n      border-radius: 2px;\n      background: rgba(167, 0, 0, 0.2);\n      box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5); }\n    .effects svg .reverb, .effects svg .delay {\n      color: #E5E5E5;\n      font-size: 19px;\n      font-family: OCRAStd; }\n\ndiv.todo-wrapper {\n  margin: 0 auto;\n  max-width: 600px; }\n  div.todo-wrapper a.btn {\n    position: relative;\n    top: 18px; }\n  div.todo-wrapper input.input-field {\n    position: relative;\n    top: 20px;\n    width: 90%;\n    height: 20px; }\n  div.todo-wrapper ul.list li.collection-header {\n    text-align: center; }\n  div.todo-wrapper ul.list li.collection-item {\n    cursor: pointer; }\n  div.todo-wrapper ul.list li.todo-input {\n    padding-bottom: 20px; }\n\n.artists.mounted {\n  opacity: 1; }\n\n.artists {\n  padding: 0.5em;\n  opacity: 0; }\n  .artists .artist-tile {\n    position: relative;\n    margin: 1em;\n    min-width: 350px;\n    max-width: 350px;\n    opacity: 0;\n    transition: transform 0.4s, opacity 0.4s;\n    transform: translateY(100px) translateZ(-1000px); }\n    .artists .artist-tile figure {\n      box-shadow: 2px 2px 5px #111; }\n      .artists .artist-tile figure .image-container {\n        overflow: hidden;\n        min-height: 220px;\n        max-height: 220px;\n        height: 18vw; }\n        .artists .artist-tile figure .image-container > div {\n          position: absolute;\n          top: 0;\n          padding: 1em;\n          min-height: 220px;\n          max-height: 220px;\n          width: 100%;\n          height: 18vw;\n          background-color: rgba(0, 0, 0, 0.6);\n          opacity: 0;\n          transition: opacity 0.3s ease-in-out; }\n          .artists .artist-tile figure .image-container > div p {\n            overflow: scroll;\n            min-height: 145px;\n            height: 10vw;\n            border-bottom: 1px solid;\n            color: white;\n            font-size: 1.3em;\n            font-family: monospace;\n            line-height: 1.4em; }\n          .artists .artist-tile figure .image-container > div div {\n            text-align: center; }\n          .artists .artist-tile figure .image-container > div canvas {\n            position: absolute;\n            top: 206px;\n            left: 0;\n            width: 350px;\n            height: 50px;\n            opacity: 0;\n            filter: drop-shadow(-3px 2px 20px #666);\n            transition: all 0.5s ease-in-out; }\n          .artists .artist-tile figure .image-container > div svg {\n            margin-top: 5px;\n            padding: 0.1em;\n            max-width: 50px;\n            max-height: 50px;\n            width: 100%;\n            cursor: pointer; }\n            .artists .artist-tile figure .image-container > div svg #play-button > path {\n              transition: fill 0.3s ease-in-out;\n              fill: #ccc; }\n            .artists .artist-tile figure .image-container > div svg #hoops {\n              opacity: 0;\n              transition: opacity 0.4s ease-in-out; }\n            .artists .artist-tile figure .image-container > div svg circle {\n              fill: darkturquoise;\n              stroke: black; }\n      .artists .artist-tile figure .image-container:hover > div, .artists .artist-tile figure .image-container.playing > div {\n        opacity: 1; }\n      .artists .artist-tile figure .image-container.playing > div svg #hoops {\n        opacity: 1; }\n      .artists .artist-tile figure .image-container.playing > div svg {\n        filter: drop-shadow(1px 1px 20px #fff) brightness(1.4); }\n      .artists .artist-tile figure .image-container.playing canvas {\n        opacity: 1; }\n      .artists .artist-tile figure .image-container.playing svg #play-button > path {\n        fill: #fff; }\n      .artists .artist-tile figure figcaption {\n        margin: 0 0 0.4em 0;\n        padding: 0.3em;\n        background-color: rgba(10, 10, 10, 0.5);\n        text-align: center;\n        font-size: 1.4em;\n        transition: all 0.3s ease-in-out; }\n        .artists .artist-tile figure figcaption a {\n          color: floralwhite;\n          font-family: monospace; }\n      .artists .artist-tile figure figcaption.playing {\n        background-color: rgba(0, 0, 0, 0.8); }\n      .artists .artist-tile figure figcaption.playing a {\n        color: #666; }\n      .artists .artist-tile figure img {\n        width: 100%; }\n  .artists .artist-tile.mounted {\n    opacity: 1;\n    transition: transform 0.4s, opacity 0.4s;\n    transform: translateY(0) translateZ(0); }\n  .artists .artist-tile.mounted:nth-child(2) {\n    transition-delay: 0.1s; }\n  .artists .artist-tile.mounted:nth-child(3) {\n    transition-delay: 0.2s; }\n  .artists .artist-tile.mounted:nth-child(4) {\n    transition-delay: 0.3s; }\n  .artists .artist-tile.mounted:nth-child(5) {\n    transition-delay: 0.4s; }\n  .artists .artist-tile.mounted:nth-child(6) {\n    transition-delay: 0.5s; }\n  .artists .artist-tile.mounted:nth-child(7) {\n    transition-delay: 0.6s; }\n\n.news-container {\n  margin: 0 auto;\n  padding: 0.5em 2em;\n  width: 80%; }\n  .news-container .news-item-container {\n    margin: 2em 0;\n    padding: 1em;\n    border-radius: 2px;\n    color: #fff; }\n    .news-container .news-item-container header {\n      margin: 1.2em 0;\n      padding: 0.5em 0;\n      border-bottom: 1px solid #666; }\n    .news-container .news-item-container header h1 {\n      font-weight: 500;\n      font-size: 3em;\n      font-family: monospace; }\n    .news-container .news-item-container header p span {\n      color: chocolate; }\n    .news-container .news-item-container section > p {\n      font-size: 1.25em;\n      line-height: 1.5em; }\n    .news-container .news-item-container section img {\n      float: left;\n      margin-right: 2em;\n      max-width: 400px;\n      max-height: 400px; }\n    .news-container .news-item-container section .tag-container {\n      margin-top: 0.8em; }\n      .news-container .news-item-container section .tag-container .tag {\n        margin: 0 0.2em;\n        padding: 0.2em 1em;\n        border-radius: 6px;\n        background-color: #111;\n        font-size: 0.5em;\n        font-family: sans-serif; }\n        .news-container .news-item-container section .tag-container .tag svg {\n          position: relative;\n          top: 3px;\n          margin-right: 5px;\n          height: 15px;\n          fill: #fff; }\n\n.-view-create {\n  overflow: hidden; }\n\n.create-container {\n  position: relative; }\n  .create-container .audio-node-container {\n    opacity: 0.8; }\n    .create-container .audio-node-container svg {\n      width: 125px;\n      height: 125px;\n      border-radius: 200px;\n      background-color: #000;\n      cursor: -webkit-grab;\n      transition: all 0.05s ease; }\n      .create-container .audio-node-container svg #outer-circle {\n        background-image: radial-gradient(50% 100%, #716E6E 100%, #3E3B3B 50%);\n        box-shadow: 2px 2px 13px 3px rgba(255, 255, 255, 0.5);\n        fill: #333; }\n      .create-container .audio-node-container svg #middle-circle {\n        background: #9BC1C5;\n        box-shadow: 1px 1px 12px 3px rgba(0, 0, 0, 0.48);\n        transition: all 0.2s ease-in-out; }\n      .create-container .audio-node-container svg #center-circle {\n        border: 1px solid #000000;\n        background-image: radial-gradient(50% 100%, #8A8A8A 57%, #D8D8D8 100%);\n        fill: rgba(0, 0, 0, 0.8); }\n      .create-container .audio-node-container svg.grabbing {\n        cursor: -webkit-grabbing; }\n      .create-container .audio-node-container svg:focus {\n        outline: none; }\n      .create-container .audio-node-container svg.blue #middle-circle {\n        fill: rgba(0, 255, 255, 0.2); }\n      .create-container .audio-node-container svg.purple #middle-circle {\n        fill: rgba(139, 0, 139, 0.2); }\n      .create-container .audio-node-container svg.green #middle-circle {\n        fill: rgba(0, 173, 0, 0.2); }\n      .create-container .audio-node-container svg.red #middle-circle {\n        fill: rgba(167, 0, 0, 0.2); }\n      .create-container .audio-node-container svg.playing.blue {\n        box-shadow: 2px 2px 20px cyan; }\n        .create-container .audio-node-container svg.playing.blue #middle-circle {\n          fill: cyan; }\n      .create-container .audio-node-container svg.playing.purple {\n        box-shadow: 2px 2px 20px darkmagenta; }\n        .create-container .audio-node-container svg.playing.purple #middle-circle {\n          fill: darkmagenta; }\n      .create-container .audio-node-container svg.playing.green {\n        box-shadow: 2px 2px 20px #00ad00; }\n        .create-container .audio-node-container svg.playing.green #middle-circle {\n          fill: #00ad00; }\n      .create-container .audio-node-container svg.playing.red {\n        box-shadow: 2px 2px 20px #a70000; }\n        .create-container .audio-node-container svg.playing.red #middle-circle {\n          fill: #a70000; }\n  .create-container .instructions-comp {\n    position: absolute;\n    bottom: -130px;\n    color: white;\n    transition: all 0.4s ease-in-out; }\n    .create-container .instructions-comp .controls-tab {\n      margin: 0 auto;\n      width: 20%;\n      border-radius: 18px;\n      background-color: #02566b;\n      text-align: center;\n      opacity: 0.4;\n      transition: all 0.2s ease; }\n      .create-container .instructions-comp .controls-tab:hover {\n        opacity: 1; }\n      .create-container .instructions-comp .controls-tab svg {\n        margin-left: 5px;\n        width: 20px;\n        transition: all 0.4s linear;\n        fill: #fff; }\n    .create-container .instructions-comp.open {\n      bottom: 20px; }\n      .create-container .instructions-comp.open .controls-tab {\n        background-color: rgba(2, 86, 107, 0.2);\n        opacity: 1; }\n        .create-container .instructions-comp.open .controls-tab svg {\n          transform: rotate(90deg); }\n    .create-container .instructions-comp .instructions-container {\n      position: relative;\n      font-family: monospace; }\n      .create-container .instructions-comp .instructions-container span {\n        padding: 2em; }\n        .create-container .instructions-comp .instructions-container span::after {\n          margin-left: 10px;\n          color: gold;\n          font-size: 1.2em;\n          font-family: Arial, Helvetica, sans-serif; }\n        .create-container .instructions-comp .instructions-container span.forward::after {\n          content: \"W\"; }\n        .create-container .instructions-comp .instructions-container span.back::after {\n          content: \"S\"; }\n        .create-container .instructions-comp .instructions-container span.left::after {\n          content: \"A\"; }\n        .create-container .instructions-comp .instructions-container span.right::after {\n          content: \"D\"; }\n        .create-container .instructions-comp .instructions-container span.up::after {\n          content: \"R\"; }\n        .create-container .instructions-comp .instructions-container span.down::after {\n          content: \"F\"; }\n        .create-container .instructions-comp .instructions-container span.roll-left::after {\n          content: \"Q\"; }\n        .create-container .instructions-comp .instructions-container span.roll-right::after {\n          content: \"E\"; }\n        .create-container .instructions-comp .instructions-container span.yaw-left::after {\n          width: 30px;\n          height: 30px;\n          content: \"\\2190\"; }\n        .create-container .instructions-comp .instructions-container span.yaw-right::after {\n          content: \"\\2192\"; }\n        .create-container .instructions-comp .instructions-container span.pitch-up::after {\n          content: \"\\2191\"; }\n        .create-container .instructions-comp .instructions-container span.pitch-down::after {\n          content: \"\\2193\"; }\n\n/* label color */\n.input-field label {\n  color: #000; }\n\n/* label focus color */\n.input-field input[type=text]:focus + label {\n  color: #000; }\n\n/* label underline focus color */\n.input-field input[type=text]:focus {\n  border-bottom: 1px solid #000;\n  box-shadow: 0 1px 0 0 #000; }\n\n/* valid color */\n.input-field input[type=text].valid {\n  border-bottom: 1px solid #000;\n  box-shadow: 0 1px 0 0 #000; }\n\n/* invalid color */\n.input-field input[type=text].invalid {\n  border-bottom: 1px solid #000;\n  box-shadow: 0 1px 0 0 #000; }\n\n/* icon prefix focus color */\n.input-field .prefix.active {\n  color: #000; }\n\n.highlight li.collection-item:not(.todo-input):hover {\n  background-color: #eee; }\n\n.video-container video {\n  min-height: 300px; }\n\n.video-container .video-elements {\n  display: block; }\n", ""]);
 
 	// exports
 
@@ -18647,12 +18674,6 @@
 
 /***/ },
 /* 320 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__.p + "c938a96af0c49d623ea771e30ec148b4.svg";
-
-/***/ },
-/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -18904,7 +18925,7 @@
 
 
 /***/ },
-/* 322 */
+/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18934,18 +18955,18 @@
 	});
 
 /***/ },
-/* 323 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _dum = __webpack_require__(300);
 
-	var _artistsComponent = __webpack_require__(324);
+	var _artistsComponent = __webpack_require__(323);
 
-	var _newsComponent = __webpack_require__(333);
+	var _newsComponent = __webpack_require__(332);
 
-	var _multiMixer = __webpack_require__(335);
+	var _multiMixer = __webpack_require__(334);
 
 	/*======== ROUTES =======*/
 	_dum.DUM.Router.addRoutes([{
@@ -18963,7 +18984,7 @@
 	}]);
 
 /***/ },
-/* 324 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18975,17 +18996,17 @@
 
 	var _dum = __webpack_require__(300);
 
-	var _genService = __webpack_require__(325);
+	var _genService = __webpack_require__(324);
 
-	var _artists = __webpack_require__(326);
+	var _artists = __webpack_require__(325);
 
-	var _slideOpen = __webpack_require__(327);
+	var _slideOpen = __webpack_require__(326);
 
-	var _select = __webpack_require__(328);
+	var _select = __webpack_require__(327);
 
-	var _artists2 = __webpack_require__(330);
+	var _artists2 = __webpack_require__(329);
 
-	var _audioPlayer = __webpack_require__(331);
+	var _audioPlayer = __webpack_require__(330);
 
 	var artists = exports.artists = _dum.DUM.Component(function () {
 	  return _artists.Artist.get().then(function (items) {
@@ -18993,7 +19014,7 @@
 	      containerClasses: 'artists',
 	      template: _itemTemplate,
 	      items: items
-	    }).setClass('flex-parent', 'wrap', 'justify-content', 'center');;
+	    }).setClass('flex-parent', 'wrap', 'jc-center');;
 
 	    function _itemTemplate(item) {
 	      // ELEMENT SETUP
@@ -19066,7 +19087,7 @@
 	});
 
 /***/ },
-/* 325 */
+/* 324 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19184,7 +19205,7 @@
 	}
 
 /***/ },
-/* 326 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19209,7 +19230,7 @@
 	});
 
 /***/ },
-/* 327 */
+/* 326 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19221,7 +19242,7 @@
 
 	var _dum = __webpack_require__(300);
 
-	var _genService = __webpack_require__(325);
+	var _genService = __webpack_require__(324);
 
 	var SlideOpen = exports.SlideOpen = _dum.DUM.Component(function (opts) {
 
@@ -19247,7 +19268,7 @@
 	});
 
 /***/ },
-/* 328 */
+/* 327 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19259,7 +19280,7 @@
 
 	var _dum = __webpack_require__(300);
 
-	var _object = __webpack_require__(329);
+	var _object = __webpack_require__(328);
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -19361,7 +19382,7 @@
 	});
 
 /***/ },
-/* 329 */
+/* 328 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19385,7 +19406,7 @@
 	};
 
 /***/ },
-/* 330 */
+/* 329 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19397,7 +19418,7 @@
 
 	var _dum = __webpack_require__(300);
 
-	var _genService = __webpack_require__(325);
+	var _genService = __webpack_require__(324);
 
 	// let itm = {
 	//   title: 'Foo Artist',
@@ -19446,7 +19467,7 @@
 	});
 
 /***/ },
-/* 331 */
+/* 330 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19458,7 +19479,7 @@
 
 	var _dum = __webpack_require__(300);
 
-	var _AudioVisualizer = __webpack_require__(332);
+	var _AudioVisualizer = __webpack_require__(331);
 
 	var stopButtonPath = 'M48,51.9905081 C48,49.7866113 49.7920882,48 51.9905081,48 L111.009492,48 C113.213389,48 115,49.789262 115,52.007608 L115,77.492392 C115,79.7057328 115,83.289262 115,85.507608 L115,110.992392 C115,113.205733 113.207912,115 111.009492,115 L51.9905081,115 C49.7866113,115 48,113.207912 48,111.009492 L48,51.9905081 Z';
 
@@ -19478,7 +19499,7 @@
 	  var visualizer = new _AudioVisualizer.AudioVisualizer({ trackUrl: opts.trackUrl });
 	  var canvas = visualizer.canvas;
 
-	  return _dum.DUM.getSVG(opts.svgPath).then(function (svgNode) {
+	  return _dum.DUM.loadSVG(opts.svgPath).then(function (svgNode) {
 	    // SVG REFERENCE SETUP
 	    svg = Snap(svgNode);
 	    var o = svg.select('#o');
@@ -19541,7 +19562,7 @@
 	});
 
 /***/ },
-/* 332 */
+/* 331 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19676,7 +19697,7 @@
 	}();
 
 /***/ },
-/* 333 */
+/* 332 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19688,14 +19709,14 @@
 
 	var _dum = __webpack_require__(300);
 
-	var _newsService = __webpack_require__(334);
+	var _newsService = __webpack_require__(333);
 
-	var _slideOpen = __webpack_require__(327);
+	var _slideOpen = __webpack_require__(326);
 
 	var news = exports.news = _dum.DUM.Component(function () {
 	  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-	  return _dum.DUM.getSVG('fonts/Entypo+/tag-no-string.svg').then(function (svg) {
+	  return _dum.DUM.loadSVG('fonts/Entypo+/tag-no-string.svg').then(function (svg) {
 	    return _newsService.News.get().then(function (newsItems) {
 	      var container = _dum.DUM.div.setClass('news-container');
 
@@ -19751,7 +19772,7 @@
 	});
 
 /***/ },
-/* 334 */
+/* 333 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19782,7 +19803,7 @@
 	});
 
 /***/ },
-/* 335 */
+/* 334 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19796,9 +19817,9 @@
 
 	var _dum = __webpack_require__(300);
 
-	var _mixer = __webpack_require__(336);
+	var _mixer = __webpack_require__(335);
 
-	var _RaycasterPlane = __webpack_require__(338);
+	var _RaycasterPlane = __webpack_require__(339);
 
 	var multiMixer = exports.multiMixer = _dum.DUM.Component(function (options) {
 	  var rcp = new _RaycasterPlane.RaycasterPlane(function () {
@@ -19831,7 +19852,7 @@
 	    bufferInterceptor: function bufferInterceptor(val) {
 	      return rcp.updateYScale(val, 3);
 	    }
-	  }), _dum.DUM.getSVG('images/ephemera/effects.svg').then(_handleSVGLoad)];
+	  }), _dum.DUM.loadSVG('images/ephemera/effects.svg'), _dum.DUM.loadSVG('fonts/Entypo+/dots-two-horizontal.svg').then(_handleIconLoad)];
 
 	  var instructionItems = ['Forward', 'Back', 'Left', 'Right', 'Up', 'Down', 'Roll Left', 'Roll Right', 'Pitch Up', 'Pitch Down', 'Yaw Left', 'Yaw Right'];
 
@@ -19839,9 +19860,9 @@
 	    var className = item.toLowerCase().split(' ').join('-');
 
 	    return _dum.DUM.span.text(item + ':').setClass(className);
-	  })).setClass('instructions-container', 'flex-parent', 'wrap', 'justify-content', 'center');
+	  })).setClass('instructions-container', 'flex-parent', 'wrap', 'jc-center');
 
-	  var instructionsComp = _dum.DUM.$div(_dum.DUM.$div(_dum.DUM.h3.text('Controls')).setClass('controls-tab'), instructions).setClass('instructions-comp');
+	  var instructionsComp = _dum.DUM.div.setClass('instructions-comp');
 
 	  return Promise.all(promises).then(function (vals) {
 	    var _vals = _slicedToArray(vals, 5);
@@ -19852,20 +19873,57 @@
 	    var node4 = _vals[3];
 	    var effects = _vals[4];
 
-	    return _dum.DUM.$div(node1, node2, node3, node4, rcp.node, instructionsComp, effects);
+	    _attachEffects(effects, vals.slice(0, 4));
+
+	    return _dum.DUM.$div(node1, node2, node3, node4, rcp.node, instructionsComp, effects).setClass('create-container').setStyles({ height: window.innerHeight - 100 + 'px' });
 	  });
 
-	  function _handleSVGLoad(svgNode) {
+	  /*==============================================
+	                 PRIVATE FUNCTIONS
+	  ===============================================*/
+	  function _attachEffects(svgNode, audioNodes) {
 	    var svg = Snap(svgNode);
+
 	    var reverb = svg.select('#reverb');
+	    var reverbKnob = reverb.select('#knob');
+	    var reverbToggles = reverb.select('#toggles');
+	    var rtBlue = reverbToggles.select('#blue');
+	    var rtGreen = reverbToggles.select('#green');
+	    var rtRed = reverbToggles.select('#red');
+	    var rtPurple = reverbToggles.select('#purple');
+
 	    var delay = svg.select('#delay');
+	    var delayKnob = delay.select('#knob');
+	    var delayToggles = delay.select('#toggles');
+	    var dtBlue = delayToggles.select('#blue');
+	    var dtGreen = delayToggles.select('#green');
+	    var dtRed = delayToggles.select('#red');
+	    var dtPurple = delayToggles.select('#purple');
+
+	    reverbToggles.node.childNodes.forEach(function (node, idx) {
+	      var n = _dum.DUM.decorateEl(node);
+	      var audio = audioNodes[idx];
+	      n.click(function () {
+	        return node.toggleClass('active');
+	      });
+
+	      // if(node.hasClass('active')) {
+	      //   audio.reverb.on();
+	      // }
+	    });
 
 	    return _dum.DUM.$div(svg.node).setClass('effects');
+	  }
+
+	  function _handleIconLoad(svgNode) {
+	    return instructionsComp.append(_dum.DUM.$div(_dum.DUM.h3.text('Controls').append(_dum.DUM.$span(svgNode).setClass('icon')).setClass('flex-parent', 'jc-center', 'ai-center')).setClass('controls-tab').click(function () {
+	      instructionsComp.toggleClass('open');
+	    }), instructions);
 	  }
 	});
 
 /***/ },
-/* 336 */
+/* 335 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19877,14 +19935,14 @@
 
 	var _dum = __webpack_require__(300);
 
-	var _mixerNode = __webpack_require__(337);
+	var _mixerNode = __webpack_require__(336);
 
 	var zIndex = 102;
 	var left = 0;
 
 	var mixer = exports.mixer = _dum.DUM.Component(function (options) {
 
-	  return _dum.DUM.getSVG('images/ephemera/audio-button.svg').then(function (svgNode) {
+	  return _dum.DUM.loadSVG('images/ephemera/audio-button.svg').then(function (svgNode) {
 	    var svg = Snap(svgNode);
 	    var xPos = void 0;
 	    var yPos = void 0;
@@ -19937,7 +19995,7 @@
 	      mixerNode.adjustGain(gainVal);
 
 	      xPos = Math.round(e.clientX - el.clientWidth / 2);
-	      yPos = Math.round(e.clientY - el.clientHeight / 2);
+	      yPos = Math.round(e.clientY - 100 - el.clientHeight / 2);
 	      container.style.top = yPos + 'px';
 	      container.style.left = xPos + 'px';
 	    }
@@ -19950,7 +20008,7 @@
 	});
 
 /***/ },
-/* 337 */
+/* 336 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19964,12 +20022,18 @@
 
 	var _dum = __webpack_require__(300);
 
+	var _Reverb = __webpack_require__(337);
+
+	var _Mixer = __webpack_require__(338);
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 	var currentTime = 0;
 	var startTime = 0;
 	var controlNodeId = void 0;
+
+	// let mixer = new Mixer(audioCtx, data, new Reverb(audioCtx));
 
 	var MixerNode = exports.MixerNode = function () {
 	  function MixerNode(audioUrl, bufferInterceptor, startingGain) {
@@ -19982,52 +20046,63 @@
 	    this.panPosition = 0;
 	    this.id = audioUrl;
 
-	    var init = {
-	      method: 'GET',
-	      headers: { 'Content-Type': 'arraybuffer' },
-	      mode: 'cors'
-	    };
+	    _dum.DUM.loadArrayBuffer(audioUrl).then(function (data) {
+	      audioCtx.decodeAudioData(data, function (buffer) {
+	        _this.gainNode = audioCtx.createGain();
+	        _this.gainNode.gain.value = startingGain || 0.5;
 
-	    fetch(audioUrl, init).then(function (response) {
-	      response.arrayBuffer().then(function (data) {
-	        audioCtx.decodeAudioData(data, function (buffer) {
-	          _this.gainNode = audioCtx.createGain();
-	          _this.panNode = audioCtx.createStereoPanner();
-	          _this.scriptNode = audioCtx.createScriptProcessor();
-	          _this.buffer = buffer;
-	          _this.isPlaying = false;
-	          _this.gainNode.gain.value = startingGain || 0.5;
+	        _this.panNode = audioCtx.createStereoPanner();
 
-	          _this.scriptNode.onaudioprocess = function (e) {
-	            var inputBuffer = e.inputBuffer;
-	            var outputBuffer = e.outputBuffer;
+	        _this.reverb = (0, _Reverb.Reverb)(audioCtx);
+	        _this.reverb.wet = 2;
+	        // this.reverb.on  = _on;
+	        // this.reverb.off = _off;
 
-	            for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
-	              var inputData = inputBuffer.getChannelData(channel);
-	              var outputData = outputBuffer.getChannelData(channel);
-	              var total = 0;
-	              var len = inputData.length;
+	        _this.scriptNode = audioCtx.createScriptProcessor();
 
-	              for (var sample = 0; sample < inputBuffer.length; sample++) {
-	                // make output equal to the same as the input
-	                outputData[sample] = inputData[sample];
+	        _this.buffer = buffer;
+	        _this.isPlaying = false;
 
-	                if (bufferInterceptor) {
-	                  total += Math.abs(inputData[sample]);
-	                  var rms = Math.sqrt(total / len) * 50;
-	                  bufferInterceptor(rms);
-	                }
+	        _this.gainNode.connect(_this.panNode);
+	        _this.panNode.connect(_this.reverb);
+	        _this.reverb.connect(_this.scriptNode);
+
+	        _this.processors = {
+	          in: _this.gainNode,
+	          out: _this.scriptNode
+	        };
+
+	        _this.scriptNode.onaudioprocess = function (e) {
+	          var inputBuffer = e.inputBuffer;
+	          var outputBuffer = e.outputBuffer;
+
+	          for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
+	            var inputData = inputBuffer.getChannelData(channel);
+	            var outputData = outputBuffer.getChannelData(channel);
+	            var total = 0;
+	            var len = inputData.length;
+
+	            for (var sample = 0; sample < inputBuffer.length; sample++) {
+	              // make output equal to the same as the input
+	              outputData[sample] = inputData[sample];
+
+	              if (bufferInterceptor) {
+	                total += Math.abs(inputData[sample]);
+	                var rms = Math.sqrt(total / len) * 50;
+	                bufferInterceptor(rms);
 	              }
 	            }
+	          }
 
-	            if (!startTime) startTime = performance.now();
-	            currentTime = performance.now();
+	          if (!startTime) startTime = performance.now();
+	          currentTime = performance.now();
 
-	            if ((currentTime - startTime) / 1000 >= _this.buffer.duration) {
-	              startTime += _this.buffer.duration * 1000;
-	            }
-	          };
-	        });
+	          if ((currentTime - startTime) / 1000 >= _this.buffer.duration) {
+	            startTime += _this.buffer.duration * 1000;
+	          }
+	        };
+
+	        function _on() {}
 	      });
 	    });
 	  }
@@ -20042,7 +20117,7 @@
 	    key: 'play',
 	    value: function play() {
 	      _play(this);
-	      that.isPlaying = true;
+	      this.isPlaying = true;
 	    }
 	  }, {
 	    key: 'togglePlayback',
@@ -20076,15 +20151,528 @@
 	  that.source.buffer = that.buffer;
 	  that.source.loop = true;
 
-	  that.source.connect(that.panNode);
-	  that.panNode.connect(that.gainNode);
-	  that.gainNode.connect(that.scriptNode);
-	  that.scriptNode.connect(audioCtx.destination);
+	  that.source.connect(that.processors.in);
+	  that.processors.out.connect(audioCtx.destination);
+
 	  that.source[that.source.start ? 'start' : 'noteOn'](0, (currentTime - startTime) / 1000);
 	}
 
 /***/ },
+/* 337 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Reverb = Reverb;
+	// based on https://github.com/web-audio-components/simple-reverb by Nick Thompson
+
+	function Reverb(context) {
+	  var node = context.createGain();
+
+	  var dry = node._dry = context.createGain();
+	  var wet = node._wet = context.createGain();
+	  var output = node.output = context.createGain();
+	  var convolver = node._convolver = context.createConvolver();
+	  var filter = node._filter = context.createBiquadFilter();
+
+	  node.connect(dry);
+	  node.connect(wet);
+
+	  convolver.connect(filter);
+	  dry.connect(output);
+	  wet.connect(convolver);
+	  filter.connect(output);
+
+	  node._time = 2;
+	  node._decay = 2;
+	  node._reverse = false;
+	  node._filter.frequency.value = 2000;
+	  node._filter.gain.value = 25;
+	  node.filterType = 'highpass';
+
+	  Object.defineProperties(node, {
+
+	    connect: {
+	      value: function value() {
+	        var _node$output;
+
+	        (_node$output = node.output).connect.apply(_node$output, arguments);
+	      }
+	    },
+
+	    disconnect: {
+	      value: function value() {
+	        var _node$output2;
+
+	        (_node$output2 = node.output).disconnect.apply(_node$output2, arguments);
+	      }
+	    },
+
+	    wet: {
+	      get: function get() {
+	        return node._wet.gain;
+	      },
+	      set: function set(value) {
+	        node._wet.gain.value = value;
+	        node._buildImpulse();
+	      }
+	    },
+
+	    dry: {
+	      get: function get() {
+	        return node._dry.gain;
+	      },
+	      set: function set(value) {
+	        node._dry.gain.value = value;
+	        node._buildImpulse();
+	      }
+	    },
+
+	    cutoff: {
+	      get: function get() {
+	        return node._filter.frequency;
+	      },
+	      set: function set(value) {
+	        node._filter.frequency.value = value;
+	        node._buildImpulse();
+	      }
+	    },
+
+	    filterType: {
+	      get: function get() {
+	        return node._filter.type;
+	      },
+	      set: function set(value) {
+	        node._filter.type = value;
+	      }
+	    },
+
+	    _buildImpulse: {
+	      value: function value() {
+	        var self = this;
+	        var rate = self.context.sampleRate;
+	        var length = Math.max(rate * self.time, 1);
+
+	        if (self._building) buildImpulse.cancel(self._building);
+
+	        self._building = buildImpulse(length, self.decay, self.reverse, function (channels) {
+	          var impulse = self.context.createBuffer(2, length, rate);
+
+	          impulse.getChannelData(0).set(channels[0]);
+	          impulse.getChannelData(1).set(channels[1]);
+
+	          self._convolver.buffer = impulse;
+	          self._building = false;
+	        });
+	      }
+	    },
+
+	    /**
+	     * Public parameters.
+	     */
+
+	    time: {
+	      enumerable: true,
+	      get: function get() {
+	        return node._time;
+	      },
+	      set: function set(value) {
+	        node._time = value;
+	        node._buildImpulse();
+	      }
+	    },
+
+	    decay: {
+	      enumerable: true,
+	      get: function get() {
+	        return node._decay;
+	      },
+	      set: function set(value) {
+	        node._decay = value;
+	        node._buildImpulse();
+	      }
+	    },
+
+	    reverse: {
+	      enumerable: true,
+	      get: function get() {
+	        return node._reverse;
+	      },
+	      set: function set(value) {
+	        node._reverse = value;
+	        node._buildImpulse();
+	      }
+	    }
+	  });
+
+	  node._building = false;
+	  node._buildImpulse();
+
+	  return node;
+	}
+
+	var chunkSize = 2048;
+	var queue = [];
+	var targets = {};
+	var lastImpulseId = 0;
+
+	function buildImpulse(length, decay, reverse, cb) {
+	  lastImpulseId += 1;
+
+	  var target = targets[lastImpulseId] = {
+	    id: lastImpulseId,
+	    cb: cb,
+	    length: length,
+	    decay: decay,
+	    reverse: reverse,
+	    impulseL: new Float32Array(length),
+	    impulseR: new Float32Array(length)
+	  };
+
+	  queue.push([target.id, 0, Math.min(chunkSize, length)]);
+
+	  setTimeout(next, 1);
+	  return lastImpulseId;
+	}
+
+	buildImpulse.cancel = function (id) {
+	  if (targets[id]) {
+	    ;delete targets[id];
+	    return true;
+	  } else {
+	    return false;
+	  }
+	};
+
+	function next() {
+	  var item = queue.shift();
+
+	  if (item) {
+	    var target = targets[item[0]];
+
+	    if (target) {
+	      var length = target.length;
+	      var decay = target.decay;
+	      var reverse = target.reverse;
+	      var from = item[1];
+	      var to = item[2];
+
+	      var impulseL = target.impulseL;
+	      var impulseR = target.impulseR;
+
+	      for (var i = from; i < to; i++) {
+	        var n = reverse ? length - i : i;
+
+	        impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+	        impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+	      }
+
+	      if (to >= length - 1) {
+	        ;delete targets[item[0]];
+	        target.cb([target.impulseL, target.impulseR]);
+	      } else {
+	        queue.push([target.id, to, Math.min(to + chunkSize, length)]);
+	      }
+	    }
+	  }
+
+	  if (queue.length) setTimeout(next, 5);
+	}
+
+/***/ },
 /* 338 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Mixer = undefined;
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dum = __webpack_require__(300);
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/**
+	 * 
+	 * mixer
+	 * .addProcessor(reverb)
+	 * .addProcessor(delay)
+	 * .addProcessor(filter);
+	 * 
+	 * mixer.adjustMaster(2, true);
+	 * mixer.adjustPan(1, true);
+	 * 
+	 * mixer.reverb.wet(2, true);
+	 * 
+	 * 
+	 */
+
+	/**
+	 * options = {
+	 *   audioCtx: {},
+	 *   source: "" || {},
+	 *   processors: []
+	 * }
+	 */
+	/*========================================
+	            CLASS DEFINITION
+	========================================*/
+
+	var Mixer = exports.Mixer = function () {
+	  function Mixer(options) {
+	    var _this = this;
+
+	    _classCallCheck(this, Mixer);
+
+	    this._processors = {};
+	    this.audioCtx = options.audioCtx || (window.AudioContext || window.webkitAudioContext)();
+
+	    // lets put some defense up against accidental overwrites on these bad boys
+	    Object.defineProperties(this._processors, {
+	      source: {
+	        readable: true,
+	        writable: false,
+	        configurable: true,
+	        value: {
+	          node: this.audioCtx.createBufferSource(),
+	          next: null,
+	          prev: null,
+	          name: 'source'
+	        }
+	      },
+
+	      dest: {
+	        readable: true,
+	        writable: false,
+	        configurable: true,
+	        value: {
+	          node: this.audioCtx.destination,
+	          next: null,
+	          prev: null,
+	          name: 'dest'
+	        }
+	      }
+	    });
+
+	    // if passed a path, load the path
+	    if (typeof options.source === 'string') {
+	      _dum.DUM.loadArrayBuffer(options.source).then(function (audioData) {
+	        _this.audioCtx.decodeAudioData(audioData, function (buffer) {
+	          _this._buffer = buffer;
+	        });
+	      });
+
+	      //@todo: is this the best way to check for this?
+	      // Otherwise, if we already have a loaded buffer, use that
+	    } else if (_typeof(options.source.constructor) === ArrayBuffer) {
+	      this._buffer = options.source;
+	    }
+
+	    // if we are initializing the class with some effects, set those dudes up
+	    if (processors) {
+	      [].concat(_toConsumableArray(processors)).forEach(function (data) {
+	        _setUpNode.call(_this, data, audioCtx);
+	      });
+	    }
+	  }
+
+	  _createClass(Mixer, [{
+	    key: 'adjustPreGain',
+	    value: function adjustPreGain(amount, addToCurrent) {
+	      _handleInput(output, 'gain', amount, addToCurrent);
+	    }
+	  }, {
+	    key: 'adjustMasterReverb',
+	    value: function adjustMasterReverb(amount, addToCurrent) {}
+	  }]);
+
+	  return Mixer;
+	}();
+
+	/*========================================
+	                 HELPERS
+	========================================*/
+
+
+	function _setUpNode(data, audioCtx) {
+	  var _this2 = this;
+
+	  var wetGain = audioCtx.createGain();
+	  var dryGain = audioCtx.createGain();
+	  var wetPan = audioCtx.createStereoPanner();
+	  var dryPan = audioCtx.createStereoPanner();
+
+	  var name = data.name;
+	  /**
+	   *       input
+	   *         |
+	   *     |-------|
+	   *    wet     dry
+	   *     |       |
+	   *  processor  |
+	   *     |       |
+	   *   wetPan  dryPan
+	   *      \     /
+	   *       \   /
+	   *       output
+	   */
+
+	  input.connect(dryGain);
+	  input.connect(wetGain);
+	  wetGain.connect(data.node);
+	  data.node.connect(wetPan);
+	  dryGain.connect(dryPan);
+	  wetPan.connect(output);
+	  dryPan.connect(output);
+
+	  // this._processors is where we hold the metadata
+	  // necessary to make  our linked list of effects.
+	  // We initialize it here if it hasn't been already.
+	  if (!this._processors[name]) this._processors[name] = {};
+
+	  // this[name] is the publicly exposed portion
+	  this._processors[name].node = this[name] = data.node;
+
+	  // We can't monkey patch the .connect method so I'm writing a
+	  // very similarly named one that does the same thing plus the
+	  // extra stuffs that we need to maintain our linked list.
+	  this[name].connectTo = function (connectee) {
+	    var connecteeName = connectee.name;
+	    if (!_this2._processors[connecteeName]) _setUpNode(connectee);
+	    _removeIfPresent(connectee, _this2._processors);
+	    _spliceIn(connectee, _this2[name], _this2._processors);
+	  };
+
+	  this[name].disconnectFrom = function (disconnectee) {
+	    var disconnecteeName = disconnectee;
+	    return _spliceOut(disconnectee, _this2._processors, _this2.audioCtx);
+	  };
+
+	  /**
+	   * e.g. mixer.roomReverb.wet(2, true);
+	   */
+	  Object.defineProperties(this[name], {
+	    dry: {
+	      value: function value(amount, addToCurrent) {
+	        return _handleInput(dry, 'gain', amount, addToCurrent);
+	      }
+	    },
+
+	    wet: {
+	      value: function value(amount, addToCurrent) {
+	        return _handleInput(wet, 'gain', amount, addToCurrent);
+	      }
+	    },
+
+	    master: {},
+
+	    preGain: {
+	      value: function value(amount, addToCurrent) {
+	        return _handleInput(input, 'gain', amount, addToCurrent);
+	      }
+	    },
+
+	    wetPan: {
+	      value: function value(amount, addToCurrent) {
+	        return _handleInput(wetPan, 'pan', amount, addToCurrent);
+	      }
+	    },
+
+	    dryPan: {
+	      value: function value(amount, addToCurrent) {
+	        return _handleInput(dryPan, 'pan', amount, addToCurrent);
+	      }
+	    }
+	  });
+	}
+
+	/*========================================
+	            PRIVATE FUNCTIONS
+	========================================*/
+	function _handleInput(node, param, amount, addToCurrent) {
+	  if (!amount) return node[param].value;
+	  if (addToCurrent) node[param].value += amount;
+	  if (!addToCurrent) node[param].value = amount;
+	}
+
+	function _removeIfPresent(node, store) {
+	  var name = _getNodeName(node);
+	  if (name in store) return _spliceOut(node);
+	  return false;
+	}
+
+	function _spliceOut(name, store, audioCtx) {
+	  var node = store[name];
+	  if (node) {
+	    if (node.prev) {
+	      /*  prev-\ /-next
+	             splicee    
+	      */
+	      if (node.next) {
+	        var prev = node.prev.node;
+	        var next = node.next.node;
+
+	        prev.disconnect(node);
+	        prev.connect(next);
+
+	        node.next.prev = node.prev;
+	        node.prev.next = node.next;
+	      } else {
+	        /*  prev-\ /-audioCtx.destination
+	               splicee
+	        */
+	        var removed = node;
+	        var _prev = removed.prev;
+
+	        removed.node.disconnect(store.dest.node);
+	        _prev.node.connect(store.dest.node);
+
+	        _prev.next = store.dest;
+	        store.dest.prev = _prev;
+	      }
+	    } else {
+	      // Not sure if i need to build this out. Shouldnt be able to get into this state,
+	      // e.g. we will always have source and dest at prev and next
+	    }
+	    return node;
+	  }
+	  return false;
+	}
+
+	function _spliceIn(storeItem, after, store) {
+	  var afterNode = store[after];
+	  if (afterNode.name === 'dest') throw new Error('Cannot connect a processor after the audio destination node');
+
+	  var prev = afterNode.prev;
+	  var next = afterNode.next;
+	  prev.next = storeItem;
+	  storeItem.prev = prev;
+	  next.prev = storeItem;
+	  storeItem.next = next;
+
+	  prev.node.disconnect(afterNode.node);
+	  afterNode.disconnect(next.node);
+	  prev.node.connect(storeItem.node);
+	  storeItem.node.connect(next.node);
+	}
+
+	function _getNodeName(node) {
+	  return node[Symbol.toStringTag].split('Node')[0].toLowerCase();
+	}
+
+/***/ },
+/* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20100,8 +20688,8 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var THREE = __webpack_require__(339);
-	__webpack_require__(340);
+	var THREE = __webpack_require__(340);
+	__webpack_require__(341);
 
 	// if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 	var quadrants = ['pcBuffer', 'pcIndexed', 'pcIndexedOffset', 'pcRegular'];
@@ -20171,7 +20759,7 @@
 	    this.pointclouds = [this.pcBuffer, this.pcIndexed, this.pcIndexedOffset, this.pcRegular];
 
 	    this.starField = this.generateStarField();
-	    this.starField.scale.set(20, 20, -200);
+	    this.starField.scale.set(80, 80, -80);
 	    this.starField.position.set(0, 0, 0);
 	    this.scene.add(this.starField);
 
@@ -20380,7 +20968,7 @@
 	}();
 
 /***/ },
-/* 339 */
+/* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;// File:src/Three.js
@@ -62147,13 +62735,13 @@
 
 
 /***/ },
-/* 340 */
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * @author James Baicoianu / http://www.baicoianu.com/
 	 */
-	const THREE = __webpack_require__(339);
+	const THREE = __webpack_require__(340);
 
 	THREE.FlyControls = function ( object, domElement ) {
 

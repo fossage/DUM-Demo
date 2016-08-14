@@ -5,7 +5,7 @@ let left = 0;
 
 export const mixer = DUM.Component((options) => {
 
-  return DUM.getSVG('images/ephemera/audio-button.svg')
+  return DUM.loadSVG('images/ephemera/audio-button.svg')
   .then((svgNode) => {
     let svg = Snap(svgNode);
     let xPos;
