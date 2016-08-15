@@ -87,9 +87,9 @@ function _makeControlStrip(mixer, track) {
   let controlStrip = DUM.div.addClass('control-strip');
   
   controlStrip.append(
-    _makeFader(mixer.tracks[name], controlStrip),
-    _makePanControl(mixer.tracks[name]),
-    _makeMuteButton(mixer.tracks[name])
+    _makeFader(track, controlStrip),
+    _makePanControl(track),
+    _makeMuteButton(track)
   );
   
   return controlStrip;
@@ -100,11 +100,15 @@ function _makeFader(track, container) {
   let faderContainer = DUM.div.addClass('fader-container');
   let faderKnob      = DUM.div.addClass('fader-knob');
   let faderTrack     = DUM.$div(faderKnob).addClass('fader-track');
+
+  track.adjustPostGain(0);
   
   /*=========== _makeFader Helpers ==========*/
   const __handleMouseMove = (el, e) => {
     let pos = container.getBoundingClientRect();
     if(e.clientY < pos.bottom && e.clientY > pos.top) {
+      let level = (pos.bottom - e.clientY) / pos.height;
+      track.adjustPostGain(level)
       faderKnob.style.bottom = `${(pos.bottom - e.clientY - 10)}px`;
     }
   }

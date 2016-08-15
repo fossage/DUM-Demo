@@ -169,6 +169,7 @@ function _setUpTrackNode(track, name, audioCtx, preGain, postGain, pan) {
     },
 
     // For internal use. Should only be trigged by mixer's master 'play' method
+    // @todo: FIGURE OUT HOW THE FUCK TO GET THE OFFSET RIGHT!!!!
     _play(startTime, mixer) {
       if(!this._playing) {
         this.source = audioCtx.createBufferSource();
@@ -179,13 +180,14 @@ function _setUpTrackNode(track, name, audioCtx, preGain, postGain, pan) {
         pan.connect(postGain);
         postGain.connect(audioCtx.destination);
     
-        let offSet = (performance.now() - mixer.startTime) / 1000;
-        console.log(offSet);
-        (this.source.start || this.source.noteOn).call(this.source, 0, offSet);
+        let st = mixer.pauseTime ? (performance.now() - (mixer.pauseTime)) : 0;
+        this.startTime = st / 1000;
+
+        (this.source.start || this.source.noteOn).call(this.source, 0, this.startTime);
         this._playing = true;
       } else {
-        mixer.startTime = performance.now();
-        this.source.stop();
+        mixer.pauseTime = performance.now();
+        this.source.stop(0);
         this._playing = false;
       } 
     }
@@ -276,7 +278,7 @@ function _setUpProcessor(data, audioCtx) {
             PRIVATE FUNCTIONS
 ========================================*/
 function _handleInput(node, param, amount, addToCurrent){
-  if(!amount) return node[param].value;
+  if((amount !== 0) && !amount) return node[param].value;
   if(addToCurrent) node[param].value += amount;
   if(!addToCurrent) node[param].value = amount;
 }
