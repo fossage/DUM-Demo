@@ -7,7 +7,7 @@ export const news = DUM.Component((options = {}) => {
   .then((svg) => {
     return News.get()
     .then((newsItems) => {
-      let container = DUM.div.setClass('news-container');
+      let container = DUM.div.addClass('news-container');
 
       newsItems.forEach(itemTemplate);
 
@@ -32,13 +32,13 @@ export const news = DUM.Component((options = {}) => {
         if(item.imageUrl) content.prepend(DUM.img.setSrc(item.imageUrl));
         
         if(item.tags) {
-          let tagContainer = DUM.div.setClass('tag-container', 'flex-parent', 'flex-start');
+          let tagContainer = DUM.div.addClass('tag-container', 'flex-parent', 'flex-start');
 
           item.tags.forEach((tag) => {
             let tagEl = DUM
             .span
             .append(DUM.span.text(tag))
-            .setClass('tag', 'link')
+            .addClass('tag', 'link')
             .prepend(svg.cloneNode(true))
             .click(() => {
               News.getTagged(tag)
@@ -66,8 +66,8 @@ export const news = DUM.Component((options = {}) => {
 
           DUM.$section(
             content
-          ).setClass('news-content')
-        ).setClass('news-item-container', 'clearfix');
+          ).addClass('news-content')
+        ).addClass('news-item-container', 'clearfix');
 
         container.append(article);
       }

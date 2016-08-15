@@ -40,7 +40,11 @@ window.addEventListener('popstate', (e) => {
     let root = DUM.Router.$$config.root;
 
      if(root.redirectTo) {
-       DUM.Router.goTo(root.redirectTo, true);
+       DUM.Router.goTo({
+         name: root.redirectTo, 
+         isRedirect: true
+       });
+
        _currentState = _routes[root.redirectTo];
      } else {
        _currentState = DUM.Router.$$config.root;
@@ -97,10 +101,14 @@ Object.defineProperties(DUM.Router, {
         let path = window.location.pathname;
         
         if(path !== '/') { 
-          DUM.Router.goTo(path.slice(1));
+          DUM.Router.goTo({
+            name: path.slice(1)
+          });
         } else {
           let root = DUM.Router.$$config.root;
-          DUM.Router.goTo(root.redirectTo || root.path);
+          DUM.Router.goTo({
+            name: root.redirectTo || root.path
+          });
         }
       } 
       _initialized = true;
@@ -110,16 +118,16 @@ Object.defineProperties(DUM.Router, {
   },
   
   goTo: {
-    value: (routeName, isRedirect) => {
-      let state = _routes[routeName];
+    value: (options) => {
+      let state = _routes[options.name];
 
       // We set the 'isRedirect' flag when we navigate to the root view with the 'redirectTo' 
       // config option set to prevent us from navigating to an empty state where the user
       // is on the default view and trys to navigate back to root
-      if(!isRedirect && state.path === _currentState.path) return DUM.Router;
-      _currentState.to = _routes[routeName];
+      if(!options.isRedirect && state.path === _currentState.path) return DUM.Router;
+      _currentState.to = _routes[options.routeName];
       _fireStateEvent('stateChangeStart', _currentState);
-      state.$$instanceView = state.view();
+      state.$$instanceView = state.view(options.data);
 
       Promise.resolve(state.$$instanceView)
       .then((iView) => {
@@ -127,7 +135,6 @@ Object.defineProperties(DUM.Router, {
         state.$$instanceView = iView;
 
         let parent = state.$$instanceView.parentNode || _rootView;
-        // let appendMethod = state.$$instanceView.parentNode ? 'append' : 'appendChild';
 
         if(_currentState.$$instanceView && _currentState.$$instanceView.remove) _currentState.$$instanceView.remove();
         if(state.$$instanceView) parent.append(state.$$instanceView);
@@ -135,7 +142,7 @@ Object.defineProperties(DUM.Router, {
 
         history.pushState({name: state.name, path: state.path}, state.name || '', state.path);
         _currentState = state;
-        if(!_disableStateClass) _rootView.setClass(`${_viewClassPrefix}-${_currentState.name}`)
+        if(!_disableStateClass) _rootView.addClass(`${_viewClassPrefix}-${_currentState.name}`)
 
        _fireStateEvent('stateChangeEnd', state);
       });

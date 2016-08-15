@@ -9,7 +9,7 @@ export let NavButton = DUM.Component((opts) => {
     .click(opts.click)
     .setStyles(styles);
     
-    if(opts.class) btn.setClass(opts.class);
+    if(opts.class) btn.addClass(opts.class);
   
   return btn;
 });

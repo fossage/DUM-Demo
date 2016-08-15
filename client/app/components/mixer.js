@@ -11,12 +11,12 @@ export const mixer = DUM.Component((options) => {
     let xPos;
     let yPos;
     let mixerNode = new MixerNode(options.audioUrl, options.bufferInterceptor, 0.92);
-    let container = DUM.div.setClass('audio-node-container').setStyles({zIndex: '101'});
+    let container = DUM.div.addClass('audio-node-container').setStyles({zIndex: '101'});
 
     let button = svg.node
     .mouseDown((el) => {
       container.style['z-index'] = ++zIndex;
-      el.setClass('grabbing');
+      el.addClass('grabbing');
       let downTime = new Date().getTime();
       el.mouseMove(moveEl);
       el.mouseOut(() => el.off('mousemove', moveEl));
@@ -35,7 +35,7 @@ export const mixer = DUM.Component((options) => {
     });
 
     button.subscribe('stateChangeStart', () => mixerNode.stop());
-    button.setClass(options.colorClass);
+    button.addClass(options.colorClass);
 
     container.append(
       button

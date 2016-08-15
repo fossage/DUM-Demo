@@ -14,7 +14,7 @@ export const artists = DUM.Component(() => {
       containerClasses: 'artists',
       template: _itemTemplate,
       items: items
-    }).setClass('flex-parent', 'wrap', 'jc-center');;
+    }).addClass('flex-parent', 'wrap', 'jc-center');;
 
     function _itemTemplate(item) {
       // ELEMENT SETUP
@@ -24,7 +24,7 @@ export const artists = DUM.Component(() => {
       let imageContainer = DUM.$div(
         DUM.img.setSrc(item.imageUrl),
         bioContainer
-      ).setClass('image-container');
+      ).addClass('image-container');
 
       let figCaption = DUM.$figcaption(DUM.a.setHref(item.linkTo).attr('target', '_blank').text(item.name));
 
@@ -67,7 +67,7 @@ export const artists = DUM.Component(() => {
             figCaption
           )
         )
-        .setClass('flex-1', 'artist-tile')
+        .addClass('flex-1', 'artist-tile')
       });
       
       /*============== PRIVATE FUNCTION ==============*/
@@ -81,7 +81,7 @@ export const artists = DUM.Component(() => {
         element
         .wait(500)
         .then(() => {
-          element.setClass('mounted')
+          element.addClass('mounted')
         })
       });
 
@@ -92,7 +92,7 @@ export const artists = DUM.Component(() => {
       comp
       .wait(500)
       .then(() => {
-        comp.setClass('mounted')
+        comp.addClass('mounted')
       });
     });
 

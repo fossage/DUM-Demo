@@ -79,12 +79,23 @@ export class Mixer {
 
   play() {
     if(!this.startTime) this.startTime = performance.now();
-    Object.keys(this.tracks).forEach(key => this.tracks[key]._play(this.startTime));
+    Object.keys(this.tracks).forEach(key => this.tracks[key]._play(this.startTime, this));
   }
 
   pause() {
 
   }
+
+//   function _play(that) {
+//     that.source        = audioCtx.createBufferSource();
+//     that.source.buffer = that.buffer;
+//     that.source.loop   = true;
+    
+//     that.source.connect(that.processors.in);
+//     that.processors.out.connect(audioCtx.destination);
+    
+//     that.source[that.source.start ? 'start' : 'noteOn'](0, (currentTime - startTime) / 1000);
+//  }
 
 }
 
@@ -98,6 +109,7 @@ function _setUpTrack(data, onLoadingComplete = ()=>{/*noop*/}) {
   let postGain = audioCtx.createGain();
   let pan      = audioCtx.createGain();
 
+  // If we got a filepath to a track, load it and decode it
   if(typeof data.source === 'string') {
     DUM.loadArrayBuffer(data.source)
     .then(audioData => {
@@ -124,7 +136,6 @@ function _setUpTrackNode(track, name, audioCtx, preGain, postGain, pan) {
   let that = this;
 
   that.tracks[name] = {
-    source: audioCtx.createBufferSource(),
     isPlaying: false,
     connected: false,
     muted: false,
@@ -158,18 +169,25 @@ function _setUpTrackNode(track, name, audioCtx, preGain, postGain, pan) {
     },
 
     // For internal use. Should only be trigged by mixer's master 'play' method
-    _play(startTime) {
-      if(!this.connected){
-        this.connected     = true;
+    _play(startTime, mixer) {
+      if(!this._playing) {
+        this.source = audioCtx.createBufferSource();
         this.source.buffer = track;
+        this.connected     = true;
         this.source.connect(preGain);
         preGain.connect(pan);
         pan.connect(postGain);
         postGain.connect(audioCtx.destination);
-      }
-      
-      let offSet = Math.round((performance.now() - startTime) / 1000);
-      (this.source.start || this.source.noteOn).call(this.source, offSet);
+    
+        let offSet = (performance.now() - mixer.startTime) / 1000;
+        console.log(offSet);
+        (this.source.start || this.source.noteOn).call(this.source, 0, offSet);
+        this._playing = true;
+      } else {
+        mixer.startTime = performance.now();
+        this.source.stop();
+        this._playing = false;
+      } 
     }
   };
 }

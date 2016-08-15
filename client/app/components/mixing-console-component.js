@@ -5,8 +5,6 @@ const AUDIOCTX = new (window.AudioContext || window.webkitAudioContext)();
 
 export const mixingConsole = DUM.Component(() => {
   let deferred = new Promise((resolve, reject) => {
-    let mixContainer      = DUM.div.setClass('mix-container');
-    let controlsContainer = DUM.div.setClass('controls-container');
 
     let mixer = new Mixer({
       audioCtx: AUDIOCTX,
@@ -28,43 +26,98 @@ export const mixingConsole = DUM.Component(() => {
           name: 'lowDrums'
         }
       ],
-      onLoadingComplete: _handleLoadingComplete
+      onLoadingComplete: () => { 
+        _setUpElements(mixer, resolve);
+      }
     });
-
-    function _handleLoadingComplete() {
-      let trackNames = Object.keys(mixer.tracks);
-      trackNames.forEach(name => controlsContainer.append(_makeFader(mixer.tracks[name])));
-      resolve(mixContainer.append(controlsContainer));
-    }
   });
 
   return deferred;
 });
 
-function _makeFader(track) {
-  let faderContainer = DUM.div.setClass('fader-container');
-  let faderKnob      = DUM.div.setClass('fader-knob');
-  let faderTrack     = DUM.$div(faderKnob).setClass('fader-track');
+/************************************
+ *      HELPERS/PRIVATE FUNCTIONS
+ ***********************************/
+function _setUpElements(mixer, resolve) {
+  let mixContainer           = DUM.div.addClass('mix-container');
+  let controlsContainer      = DUM.div.addClass('controls-container');
+  let trackControlsContainer = DUM.div.addClass('track-controls-container');
+  let trackNames             = Object.keys(mixer.tracks);
+  let playButton             = _makePlayButton(mixer);
 
-  faderKnob.mouseDown(() => {
-    // let pos = faderTrack.getBoundingClientRect();
-    faderTrack.mouseMove(_handleMove);
-    
-    faderTrack.mouseUp(() => {
-      faderTrack.off('mousemove', _handleMove);
-    });
-
-    // faderTrack.mouseOut(() => {
-    //   faderTrack.off('mousemove', _handleMove);
-    // });
+  trackNames.forEach((name) => {
+    trackControlsContainer.append(_makeControlStrip(mixer, mixer.tracks[name]))
   });
 
-  function _handleMove(el, e) {
-    let pos = faderTrack.getBoundingClientRect();
+  let comp = mixContainer.append(
+    trackControlsContainer,
+    playButton
+  );
+
+  resolve(comp);
+}
+
+function _makePlayButton(mixer) {
+  let button = DUM.div.text('Play').addClass('play-button');
+  button.click(() => mixer.play());
+  return button;
+}
+
+function _makePanControl(track) {
+  // @todo: Remake this in SVG and hook up event handling.
+  // Just a dummy control for now.
+  let knob  = DUM.div.addClass('pan-knob');
+  return knob;
+}
+
+function _makeMuteButton(track) {
+  let button = DUM.button.addClass('mute-button').text('Mute');
+
+  button.click(() => {
+    let text = button.text();
+    button.toggleClass('active');
+    button.text(text === 'Mute' ? 'Unmute' : 'Mute');
+    track.toggleMute();
+  });
+
+  return button;
+}
+
+function _makeControlStrip(mixer, track) {
+  let controlStrip = DUM.div.addClass('control-strip');
+  
+  controlStrip.append(
+    _makeFader(mixer.tracks[name], controlStrip),
+    _makePanControl(mixer.tracks[name]),
+    _makeMuteButton(mixer.tracks[name])
+  );
+  
+  return controlStrip;
+}
+
+function _makeFader(track, container) {
+  /*=========== Element Setup ==========*/
+  let faderContainer = DUM.div.addClass('fader-container');
+  let faderKnob      = DUM.div.addClass('fader-knob');
+  let faderTrack     = DUM.$div(faderKnob).addClass('fader-track');
+  
+  /*=========== _makeFader Helpers ==========*/
+  const __handleMouseMove = (el, e) => {
+    let pos = container.getBoundingClientRect();
     if(e.clientY < pos.bottom && e.clientY > pos.top) {
       faderKnob.style.bottom = `${(pos.bottom - e.clientY - 10)}px`;
     }
   }
+
+  const __handleMouseUp = () => {
+    faderTrack.off('mousemove', __handleMouseMove);
+  }
+  
+  /*=========== Event Setup ==========*/
+  faderKnob.mouseDown(() => {
+    faderTrack.mouseMove(__handleMouseMove);
+    faderTrack.mouseUp  (__handleMouseUp);
+  });
 
   return faderTrack;
 }

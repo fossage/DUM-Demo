@@ -75,13 +75,13 @@ export const multiMixer = DUM.Component((options) => {
       .split(' ')
       .join('-');
 
-      return DUM.span.text(`${item}:`).setClass(className)
+      return DUM.span.text(`${item}:`).addClass(className)
     })
-  ).setClass('instructions-container', 'flex-parent', 'wrap', 'jc-center');
+  ).addClass('instructions-container', 'flex-parent', 'wrap', 'jc-center');
 
   let instructionsComp = DUM
   .div
-  .setClass('instructions-comp')
+  .addClass('instructions-comp')
   .setStyles({opacity: '0'});
 
   instructionsComp.on('didMount', () => {
@@ -101,7 +101,7 @@ export const multiMixer = DUM.Component((options) => {
     _attachEffects(effects, vals.slice(0,4));
     
     return DUM.$div(node1, node2, node3, node4, rcp.node, instructionsComp, effects)
-    .setClass('create-container')
+    .addClass('create-container')
     .setStyles({height: `${window.innerHeight - 100}px`})
   });
 
@@ -137,7 +137,7 @@ export const multiMixer = DUM.Component((options) => {
       // }
     });
 
-    return DUM.$div(svg.node).setClass('effects');
+    return DUM.$div(svg.node).addClass('effects');
   }
 
   function _handleIconLoad(svgNode) {
@@ -145,9 +145,9 @@ export const multiMixer = DUM.Component((options) => {
       DUM.$div(
         DUM.h3.text('Controls')
         .append(
-          DUM.$span(svgNode).setClass('icon')
-        ).setClass('flex-parent', 'jc-center', 'ai-center')
-      ).setClass('controls-tab')
+          DUM.$span(svgNode).addClass('icon')
+        ).addClass('flex-parent', 'jc-center', 'ai-center')
+      ).addClass('controls-tab')
       .click(() => {
         instructionsComp.toggleClass('open');
       }),

@@ -13,7 +13,7 @@ export const SlideOpen = DUM.Component((opts) => {
   let container = DUM.div.append(img);
   let listener = (open) => {
     if(open) {
-      container.setClass('slide-open');
+      container.addClass('slide-open');
     } else {
       container.removeClass('slide-open');
     }
@@ -21,5 +21,5 @@ export const SlideOpen = DUM.Component((opts) => {
 
   Gen.bindData(listener, options.notifier);
 
-  return container.setClass('slide-container'); 
+  return container.addClass('slide-container'); 
 });

@@ -15,7 +15,7 @@ export const Artists = DUM.Component((options = {}) => {
     containerClasses: ''
   }, options);
 
-  let container = DUM.div.setClass(opts.containerClasses);
+  let container = DUM.div.addClass(opts.containerClasses);
 
   for(let item of opts.items) {
     container.append(opts.template(item));

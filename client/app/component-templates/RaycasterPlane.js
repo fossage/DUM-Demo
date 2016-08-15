@@ -19,7 +19,7 @@ export class RaycasterPlane{
     this.rotateY      = new THREE.Matrix4().makeRotationY( 0.001 );
     this.rotateX      = new THREE.Matrix4().makeRotationX( -0.0005 );
     this.rotateZ      = new THREE.Matrix4().makeRotationZ( 0.0008 );
-    this.node         = DUM.div.setClass('three-dee');
+    this.node         = DUM.div.addClass('three-dee');
     this.toggle       = 0;
     this.scene        = new THREE.Scene();
     this.clock        = new THREE.Clock();

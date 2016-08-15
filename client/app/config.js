@@ -43,12 +43,14 @@ let header = () => {
     ]
   });
 
-  let logoContainer = DUM.figure.setClass('logo');
+  let logoContainer = DUM.figure.addClass('logo');
 
-  return DUM.$header(
-    logoContainer,
-    nav
-  ).setClass('main-header')
+  return DUM.$div(
+    DUM.$header(
+      logoContainer,
+      nav
+    ).addClass('main-header')
+  )
 }
 
 /*======== CONFIG =======*/

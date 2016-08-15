@@ -116,3 +116,8 @@ bower_components
 ############################
 
 config/studio.json
+
+############################
+# CODE EDITOR
+############################
+.browse.VC.*

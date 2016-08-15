@@ -147,8 +147,8 @@ export const DecorateEl = (function() {
         value: _bindElToFunc(el, remove)
       },
 
-      setClass: {
-        value: _bindElToFunc(el, setClass)
+      addClass: {
+        value: _bindElToFunc(el, addClass)
       },
 
       removeClass: {
@@ -373,7 +373,7 @@ export const DecorateEl = (function() {
     }
   }
 
-  function setClass (el, ...args) {
+  function addClass (el, ...args) {
     if(el.classList && args[0]) {
       if(args.length > 1)  {
         el.classList.add(...args);
@@ -417,7 +417,7 @@ export const DecorateEl = (function() {
 
     let styleEl = null;
     let compClass = `component-${el.$uid}`;
-    el.setClass(compClass);
+    el.addClass(compClass);
 
     if(document.styleSheets.length) {
       styleEl = document.styleSheets[document.styleSheets.length - 1];
@@ -451,8 +451,13 @@ export const DecorateEl = (function() {
   }
 
   function text (el, txt) {
-    el.innerText = txt;
-    return el;
+    if(txt){
+      el.innerText = txt;
+      return el;
+    } else {
+      return el.innerText;
+    }
+    
   }
 
   function publish(el, eventName, data) {
